@@ -121,9 +121,11 @@ function clearAll() {
 
 function generateList() {
     var selected = [];
+    var selectedIds = [];
     var visibleList = document.getElementById('btn-en').className === 'active' ? 'list-en' : 'list-pt';
     document.querySelectorAll('#' + visibleList + ' input[type="checkbox"]:checked').forEach(function(cb) {
         selected.push(cb.nextElementSibling.textContent);
+        selectedIds.push(cb.id);
     });
     
     var lang = document.getElementById('btn-en').className === 'active' ? 'en' : 'pt';
@@ -132,31 +134,35 @@ function generateList() {
         return;
     }
     
+    var itemsParam = encodeURIComponent(selectedIds.join(','));
+    var shareUrl = window.location.origin + window.location.pathname + 'list.html?items=' + itemsParam + '&lang=' + lang;
+    
     var today = new Date();
     var day = String(today.getDate()).padStart(2, '0');
     var month = String(today.getMonth() + 1).padStart(2, '0');
     var year = today.getFullYear();
-    var filename = day + '_' + month + '_' + year + '_Costco_List.html';
     
-    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><title>Costco Shopping List</title><style>body{font-family:sans-serif;padding:20px;max-width:600px;margin:0 auto;}h1{color:#667eea;text-align:center;}.item{padding:12px;border-bottom:1px solid #ddd;display:flex;align-items:center;}.item input{width:20px;height:20px;margin-right:12px;}.item.checked{background:#e8f5e9;text-decoration:line-through;opacity:0.6;}</style></head><body><h1>🛒 Costco Ancaster</h1><p style="text-align:center;color:#666;">' + day + '/' + month + '/' + year + '</p>';
+    var message = lang === 'en' 
+        ? '🛒 Costco Shopping List - ' + day + '/' + month + '/' + year + '\n\n' + selected.join('\n') + '\n\nView list: ' + shareUrl
+        : '🛒 Lista Costco - ' + day + '/' + month + '/' + year + '\n\n' + selected.join('\n') + '\n\nVer lista: ' + shareUrl;
     
-    for (var i = 0; i < selected.length; i++) {
-        html += '<div class="item"><input type="checkbox" onchange="this.parentElement.className=this.checked?';
-        html += "'item checked':'item';";
-        html += '"><label>' + selected[i] + '</label></div>';
+    var whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Costco Shopping List',
+            text: message,
+            url: shareUrl
+        }).catch(function(err) {
+            window.open(whatsappUrl, '_blank');
+        });
+    } else {
+        if (confirm(lang === 'en' ? 'Open in WhatsApp?' : 'Abrir no WhatsApp?')) {
+            window.open(whatsappUrl, '_blank');
+        } else {
+            window.open(shareUrl, '_blank');
+        }
     }
-    
-    html += '</body></html>';
-    
-    var blob = new Blob([html], {type: 'text/html'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    alert((lang === 'en' ? 'Shopping list created: ' : 'Lista criada: ') + filename);
 }
 
 var allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
