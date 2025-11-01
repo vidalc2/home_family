@@ -22,6 +22,15 @@
     <div class="date" id="date"></div>
     <div class="counter" id="counter"></div>
     <div id="list"></div>
+    
+    <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px;">
+        <h3 style="margin: 0 0 10px 0; color: #667eea;">Add Item / Adicionar Item</h3>
+        <input type="text" id="custom-item" placeholder="Enter item name / Nome do item" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+        <button onclick="addCustomItem()" style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; margin-bottom: 10px;">➕ Add to List / Adicionar à Lista</button>
+    </div>
+    
+    <button onclick="doneShoppingPrompt()" style="width: calc(100% - 40px); max-width: 560px; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); padding: 15px; background: #25D366; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">✅ Done Shopping / Compras Concluídas</button>
+    
     <div class="back">
         <a href="index.html">← Back to main list / Voltar à lista principal</a>
     </div>
@@ -104,6 +113,97 @@
                 ? remaining + ' remaining of ' + total + ' items'
                 : remaining + ' restantes de ' + total + ' itens';
             document.getElementById('counter').textContent = text;
+        }
+        
+        var customItems = [];
+        
+        function addCustomItem() {
+            var input = document.getElementById('custom-item');
+            var itemName = input.value.trim();
+            if (!itemName) {
+                alert(lang === 'en' ? 'Please enter an item name' : 'Por favor, digite o nome do item');
+                return;
+            }
+            
+            var addToMain = confirm(lang === 'en' 
+                ? 'Add "' + itemName + '" to main list for future use?\n\nClick OK to add to main list\nClick Cancel for one-time only'
+                : 'Adicionar "' + itemName + '" à lista principal para uso futuro?\n\nClique OK para adicionar à lista principal\nClique Cancelar para uso único');
+            
+            var customId = 'custom-' + Date.now();
+            var itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.style.background = '#fff9e6';
+            itemDiv.innerHTML = '<input type="checkbox" id="' + customId + '"><label for="' + customId + '">' + itemName + (addToMain ? '' : ' #onetimeonly') + '</label>';
+            document.getElementById('list').appendChild(itemDiv);
+            
+            var checkbox = itemDiv.querySelector('input');
+            checkbox.addEventListener('change', function() {
+                itemDiv.className = this.checked ? 'item checked' : 'item';
+                total++;
+                updateCounter();
+            });
+            
+            customItems.push({
+                name: itemName,
+                oneTimeOnly: !addToMain,
+                id: customId
+            });
+            
+            input.value = '';
+            total++;
+            updateCounter();
+        }
+        
+        function doneShoppingPrompt() {
+            var allItems = document.querySelectorAll('.item');
+            var found = [];
+            var missing = [];
+            
+            allItems.forEach(function(item) {
+                var checkbox = item.querySelector('input');
+                var label = item.querySelector('label');
+                var itemName = label.textContent;
+                
+                if (checkbox.checked) {
+                    found.push(itemName);
+                } else {
+                    missing.push(itemName);
+                }
+            });
+            
+            var totalCost = prompt(lang === 'en' 
+                ? 'Enter total amount paid (optional):'
+                : 'Digite o valor total pago (opcional):');
+            
+            var logData = {
+                date: new Date().toISOString(),
+                dateFormatted: document.getElementById('date').textContent,
+                lang: lang,
+                totalItems: total,
+                foundItems: found,
+                missingItems: missing,
+                customItems: customItems,
+                totalCost: totalCost || 'Not provided'
+            };
+            
+            var logs = JSON.parse(localStorage.getItem('costco_shopping_logs') || '[]');
+            logs.push(logData);
+            localStorage.setItem('costco_shopping_logs', JSON.stringify(logs));
+            
+            var summary = (lang === 'en' ? '✅ Shopping Complete!\n\n' : '✅ Compras Concluídas!\n\n') +
+                (lang === 'en' ? 'Found: ' : 'Encontrados: ') + found.length + '\n' +
+                (lang === 'en' ? 'Missing: ' : 'Faltaram: ') + missing.length + '\n' +
+                (lang === 'en' ? 'Total Cost: ' : 'Custo Total: ') + (totalCost || (lang === 'en' ? 'Not provided' : 'Não informado'));
+            
+            if (missing.length > 0) {
+                summary += '\n\n' + (lang === 'en' ? 'Missing items:\n' : 'Itens que faltaram:\n') + missing.join('\n');
+            }
+            
+            alert(summary + '\n\n' + (lang === 'en' ? 'Log saved!' : 'Registro salvo!'));
+            
+            if (confirm(lang === 'en' ? 'Return to main list?' : 'Voltar à lista principal?')) {
+                window.location.href = 'index.html';
+            }
         }
         
         updateCounter();

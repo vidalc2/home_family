@@ -26,6 +26,10 @@
 <body>
     <h1>🛒 Costco Ancaster</h1>
     
+    <div style="text-align: center; margin: 10px 0;">
+        <a href="history.html" style="color: #667eea; text-decoration: none; font-size: 14px;">📊 View History / Ver Histórico</a>
+    </div>
+    
     <div class="lang">
         <button id="btn-en" class="active" onclick="showLang('en')">English</button>
         <button id="btn-pt" onclick="showLang('pt')">Português</button>
@@ -86,12 +90,28 @@
 
     <script>
 function showLang(lang) {
+    syncCheckboxes();
     document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
     document.getElementById('btn-pt').className = lang === 'pt' ? 'active' : '';
     document.getElementById('list-en').style.display = lang === 'en' ? 'block' : 'none';
     document.getElementById('list-pt').style.display = lang === 'pt' ? 'block' : 'none';
     document.getElementById('counter').textContent = lang === 'en' ? 'Selected: 0 items' : 'Selecionados: 0 itens';
     updateCounter();
+}
+
+function syncCheckboxes() {
+    for (var i = 0; i < 19; i++) {
+        var enCat = document.querySelectorAll('#list-en .category')[i];
+        var ptCat = document.querySelectorAll('#list-pt .category')[i];
+        if (enCat && ptCat) {
+            var enBoxes = enCat.querySelectorAll('input[type="checkbox"]');
+            var ptBoxes = ptCat.querySelectorAll('input[type="checkbox"]');
+            for (var j = 0; j < enBoxes.length && j < ptBoxes.length; j++) {
+                if (enBoxes[j].checked) ptBoxes[j].checked = true;
+                else if (ptBoxes[j].checked) enBoxes[j].checked = true;
+            }
+        }
+    }
 }
 
 function updateCounter() {
@@ -136,10 +156,8 @@ function generateList() {
     var year = today.getFullYear();
     
     var message = lang === 'en' 
-        ? '🛒 Costco Shopping List - ' + day + '/' + month + '/' + year + '\n\n' + selected.join('\n') + '\n\nView list: ' + shareUrl
-        : '🛒 Lista Costco - ' + day + '/' + month + '/' + year + '\n\n' + selected.join('\n') + '\n\nVer lista: ' + shareUrl;
-    
-    var whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
+        ? '🛒 Costco Shopping List - ' + day + '/' + month + '/' + year + '\n\nView list: ' + shareUrl
+        : '🛒 Lista Costco - ' + day + '/' + month + '/' + year + '\n\nVer lista: ' + shareUrl;
     
     if (navigator.share) {
         navigator.share({
