@@ -21,21 +21,14 @@
         .btn-generate { width: 100%; padding: 15px; background: #25D366; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
         .btn-clear { width: 100%; padding: 12px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 8px; font-size: 16px; }
         .pt { display: none; }
-        #lang-switch { display: none; }
-        #lang-switch:checked ~ #list-en { display: none; }
-        #lang-switch:checked ~ #list-pt { display: block !important; }
-        #lang-switch:checked ~ .lang .btn-en { background: white; color: #667eea; }
-        #lang-switch:checked ~ .lang .btn-pt { background: #667eea; color: white; }
     </style>
 </head>
 <body>
     <h1>🛒 Costco Ancaster</h1>
     
-    <input type="checkbox" id="lang-switch">
-    
     <div class="lang">
-        <label for="lang-switch" class="btn-en active" style="display: inline-block; padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border: 2px solid #667eea; background: #667eea; color: white; border-radius: 5px;">English</label>
-        <label for="lang-switch" class="btn-pt" style="display: inline-block; padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border: 2px solid #667eea; background: white; color: #667eea; border-radius: 5px;">Português</label>
+        <button id="btn-en" class="active" onclick="showLang('en')">English</button>
+        <button id="btn-pt" onclick="showLang('pt')">Português</button>
     </div>
     
     <div class="counter" id="counter">Selected: 0 items</div>
@@ -151,16 +144,17 @@ function generateList() {
     if (navigator.share) {
         navigator.share({
             title: 'Costco Shopping List',
-            text: message,
-            url: shareUrl
+            text: message
         }).catch(function(err) {
-            window.open(whatsappUrl, '_blank');
+            var opened = window.open(shareUrl, '_blank');
+            if (!opened) {
+                prompt(lang === 'en' ? 'Copy this link to share:' : 'Copie este link para compartilhar:', shareUrl);
+            }
         });
     } else {
-        if (confirm(lang === 'en' ? 'Open in WhatsApp?' : 'Abrir no WhatsApp?')) {
-            window.open(whatsappUrl, '_blank');
-        } else {
-            window.open(shareUrl, '_blank');
+        var opened = window.open(shareUrl, '_blank');
+        if (!opened) {
+            prompt(lang === 'en' ? 'Copy this link to share:' : 'Copie este link para compartilhar:', shareUrl);
         }
     }
 }
