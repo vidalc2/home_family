@@ -1,0 +1,15 @@
+# Ignore temporary files
+*.pyc
+__pycache__/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Keep only the index.html
+app.js
+grocery_data.js
+main_app.js
+build_html.py
+Costco_*.html
+test_*.html
