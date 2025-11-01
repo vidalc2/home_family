@@ -22,6 +22,12 @@
         .btn-generate { width: 100%; padding: 15px; background: #25D366; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
         .btn-clear { width: 100%; padding: 12px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 8px; font-size: 16px; }
         .pt { display: none; }
+        .permanent-section { background: #e8f4f8; border: 2px solid #667eea; }
+        .permanent-section h3 { color: #0066cc; }
+        .btn-pin { padding: 2px 6px; margin-left: 5px; font-size: 11px; border: 1px solid #999; background: white; border-radius: 3px; cursor: pointer; }
+        .btn-pin:hover { background: #f0f0f0; }
+        .btn-unpin { padding: 2px 6px; margin-left: 5px; font-size: 11px; border: 1px solid #cc0000; background: #ffe0e0; color: #cc0000; border-radius: 3px; cursor: pointer; }
+        .manage-btn { margin: 10px 0; padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -42,10 +48,21 @@
     
     <div class="counter" id="counter">Selected: 0 items</div>
     
+    <div style="text-align: center; margin: 15px 0;">
+        <button class="manage-btn" onclick="toggleManageMode()">
+            <span id="manage-btn-text-en">📌 Manage Permanent Items</span>
+            <span id="manage-btn-text-pt" style="display: none;">📌 Gerenciar Itens Permanentes</span>
+        </button>
+    </div>
+    
     <div id="list-en">
-        <div class="category"><h3>Protein Bars & Nuts</h3><div class="item"><input type="checkbox" id="en-0-0"><label for="en-0-0">Gabriel Work Bars</label></div><div class="item"><input type="checkbox" id="en-0-1"><label for="en-0-1">Fiber Bars (Chocolate)</label></div><div class="item"><input type="checkbox" id="en-0-2"><label for="en-0-2">Rice Krispies Bars</label></div><div class="item"><input type="checkbox" id="en-0-3"><label for="en-0-3">Pumpkin Seeds</label></div><div class="item"><input type="checkbox" id="en-0-4"><label for="en-0-4">Cashews</label></div><div class="item"><input type="checkbox" id="en-0-5"><label for="en-0-5">Raisins</label></div><div class="item"><input type="checkbox" id="en-0-6"><label for="en-0-6">Sesame Seeds</label></div></div>
+        <div id="permanent-en" class="category permanent-section">
+            <h3>⭐ Permanent Items (Always Selected)</h3>
+            <div id="permanent-items-en"></div>
+        </div>
+        <div class="category"><h3>Protein Bars & Nuts</h3><div class="item"><input type="checkbox" id="en-0-0"><label for="en-0-0">Gabriel Work Bars</label></div><div class="item"><input type="checkbox" id="en-0-1"><label for="en-0-1">Fiber Bars (Chocolate)</label></div><div class="item"><input type="checkbox" id="en-0-2"><label for="en-0-2">Rice Krispies Bars</label></div><div class="item"><input type="checkbox" id="en-0-3"><label for="en-0-3">Kirkland Protein Bar</label></div><div class="item"><input type="checkbox" id="en-0-4"><label for="en-0-4">Pumpkin Seeds</label></div><div class="item"><input type="checkbox" id="en-0-5"><label for="en-0-5">Cashews</label></div><div class="item"><input type="checkbox" id="en-0-6"><label for="en-0-6">Raisins</label></div><div class="item"><input type="checkbox" id="en-0-7"><label for="en-0-7">Sesame Seeds</label></div></div>
         <div class="category"><h3>Bakery</h3><div class="item"><input type="checkbox" id="en-1-0"><label for="en-1-0">Pedro's Cake</label></div><div class="item"><input type="checkbox" id="en-1-1"><label for="en-1-1">Ginger Cookies</label></div><div class="item"><input type="checkbox" id="en-1-2"><label for="en-1-2">Small Oat Muffins</label></div><div class="item"><input type="checkbox" id="en-1-3"><label for="en-1-3">Hot Dog Buns</label></div><div class="item"><input type="checkbox" id="en-1-4"><label for="en-1-4">Whole Wheat Tortillas</label></div><div class="item"><input type="checkbox" id="en-1-5"><label for="en-1-5">Gabriel's Sandwich Bread</label></div><div class="item"><input type="checkbox" id="en-1-6"><label for="en-1-6">Pedro's Bread (Texas/2 packs)</label></div><div class="item"><input type="checkbox" id="en-1-7"><label for="en-1-7">Frozen Croissants</label></div><div class="item"><input type="checkbox" id="en-1-8"><label for="en-1-8">Frozen Breads</label></div></div>
-        <div class="category"><h3>Meat & Deli</h3><div class="item"><input type="checkbox" id="en-2-0"><label for="en-2-0">Smoked Turkey Breast</label></div><div class="item"><input type="checkbox" id="en-2-1"><label for="en-2-1">Bacon</label></div></div>
+        <div class="category"><h3>Meat & Deli</h3><div class="item"><input type="checkbox" id="en-2-0"><label for="en-2-0">Smoked Turkey Breast</label></div><div class="item"><input type="checkbox" id="en-2-1"><label for="en-2-1">Bacon</label></div><div class="item"><input type="checkbox" id="en-2-2"><label for="en-2-2">Chicken Thighs</label></div><div class="item"><input type="checkbox" id="en-2-3"><label for="en-2-3">Ground Beef</label></div><div class="item"><input type="checkbox" id="en-2-4"><label for="en-2-4">Tilapia</label></div></div>
         <div class="category"><h3>Fruits & Vegetables</h3><div class="item"><input type="checkbox" id="en-3-0"><label for="en-3-0">Lemon</label></div><div class="item"><input type="checkbox" id="en-3-1"><label for="en-3-1">Apples</label></div><div class="item"><input type="checkbox" id="en-3-2"><label for="en-3-2">Bananas</label></div><div class="item"><input type="checkbox" id="en-3-3"><label for="en-3-3">Tangerines</label></div><div class="item"><input type="checkbox" id="en-3-4"><label for="en-3-4">Papaya</label></div><div class="item"><input type="checkbox" id="en-3-5"><label for="en-3-5">Prunes</label></div><div class="item"><input type="checkbox" id="en-3-6"><label for="en-3-6">Yellow Potatoes (8)</label></div><div class="item"><input type="checkbox" id="en-3-7"><label for="en-3-7">Sweet Potatoes (6)</label></div><div class="item"><input type="checkbox" id="en-3-8"><label for="en-3-8">Carrots (4)</label></div><div class="item"><input type="checkbox" id="en-3-9"><label for="en-3-9">Beets (2)</label></div><div class="item"><input type="checkbox" id="en-3-10"><label for="en-3-10">Pumpkin</label></div><div class="item"><input type="checkbox" id="en-3-11"><label for="en-3-11">Cassava</label></div><div class="item"><input type="checkbox" id="en-3-12"><label for="en-3-12">Red Onions (2)</label></div><div class="item"><input type="checkbox" id="en-3-13"><label for="en-3-13">Corn</label></div></div>
         <div class="category"><h3>Cheese</h3><div class="item"><input type="checkbox" id="en-4-0"><label for="en-4-0">Goat Cheese</label></div><div class="item"><input type="checkbox" id="en-4-1"><label for="en-4-1">Feta Cheese</label></div><div class="item"><input type="checkbox" id="en-4-2"><label for="en-4-2">Coalho Cheese</label></div></div>
         <div class="category"><h3>Fresh Vegetables</h3><div class="item"><input type="checkbox" id="en-5-0"><label for="en-5-0">Mushrooms</label></div><div class="item"><input type="checkbox" id="en-5-1"><label for="en-5-1">Cucumber</label></div><div class="item"><input type="checkbox" id="en-5-2"><label for="en-5-2">Tomatoes</label></div><div class="item"><input type="checkbox" id="en-5-3"><label for="en-5-3">Cherry Tomatoes</label></div><div class="item"><input type="checkbox" id="en-5-4"><label for="en-5-4">Bell Peppers</label></div><div class="item"><input type="checkbox" id="en-5-5"><label for="en-5-5">Broccoli</label></div><div class="item"><input type="checkbox" id="en-5-6"><label for="en-5-6">Avocado</label></div><div class="item"><input type="checkbox" id="en-5-7"><label for="en-5-7">Brussels Sprouts</label></div><div class="item"><input type="checkbox" id="en-5-8"><label for="en-5-8">Asparagus</label></div><div class="item"><input type="checkbox" id="en-5-9"><label for="en-5-9">Red Cabbage</label></div><div class="item"><input type="checkbox" id="en-5-10"><label for="en-5-10">Garlic</label></div><div class="item"><input type="checkbox" id="en-5-11"><label for="en-5-11">Spinach</label></div></div>
@@ -65,9 +82,13 @@
     </div>
     
     <div id="list-pt" class="pt">
-        <div class="category"><h3>Barras e Castanhas</h3><div class="item"><input type="checkbox" id="pt-0-0"><label for="pt-0-0">Barrinha Gabriel</label></div><div class="item"><input type="checkbox" id="pt-0-1"><label for="pt-0-1">Barra cereal chocolate</label></div><div class="item"><input type="checkbox" id="pt-0-2"><label for="pt-0-2">Barrinha Rice Krispies</label></div><div class="item"><input type="checkbox" id="pt-0-3"><label for="pt-0-3">Sementes abóbora</label></div><div class="item"><input type="checkbox" id="pt-0-4"><label for="pt-0-4">Castanhas</label></div><div class="item"><input type="checkbox" id="pt-0-5"><label for="pt-0-5">Uvas passas</label></div><div class="item"><input type="checkbox" id="pt-0-6"><label for="pt-0-6">Gergelim</label></div></div>
+        <div id="permanent-pt" class="category permanent-section">
+            <h3>⭐ Itens Permanentes (Sempre Selecionados)</h3>
+            <div id="permanent-items-pt"></div>
+        </div>
+        <div class="category"><h3>Barras e Castanhas</h3><div class="item"><input type="checkbox" id="pt-0-0"><label for="pt-0-0">Barrinha Gabriel</label></div><div class="item"><input type="checkbox" id="pt-0-1"><label for="pt-0-1">Barra cereal chocolate</label></div><div class="item"><input type="checkbox" id="pt-0-2"><label for="pt-0-2">Barrinha Rice Krispies</label></div><div class="item"><input type="checkbox" id="pt-0-3"><label for="pt-0-3">Kirkland Protein Bar</label></div><div class="item"><input type="checkbox" id="pt-0-4"><label for="pt-0-4">Sementes abóbora</label></div><div class="item"><input type="checkbox" id="pt-0-5"><label for="pt-0-5">Castanhas</label></div><div class="item"><input type="checkbox" id="pt-0-6"><label for="pt-0-6">Uvas passas</label></div><div class="item"><input type="checkbox" id="pt-0-7"><label for="pt-0-7">Gergelim</label></div></div>
         <div class="category"><h3>Padaria</h3><div class="item"><input type="checkbox" id="pt-1-0"><label for="pt-1-0">Bolo Pedro</label></div><div class="item"><input type="checkbox" id="pt-1-1"><label for="pt-1-1">Ginger Cookies</label></div><div class="item"><input type="checkbox" id="pt-1-2"><label for="pt-1-2">Bolinho aveia</label></div><div class="item"><input type="checkbox" id="pt-1-3"><label for="pt-1-3">Pão hot dog</label></div><div class="item"><input type="checkbox" id="pt-1-4"><label for="pt-1-4">Tortillas integral</label></div><div class="item"><input type="checkbox" id="pt-1-5"><label for="pt-1-5">Pão Gabriel</label></div><div class="item"><input type="checkbox" id="pt-1-6"><label for="pt-1-6">Pães Pedro (Texas/2)</label></div><div class="item"><input type="checkbox" id="pt-1-7"><label for="pt-1-7">Croissant congelados</label></div><div class="item"><input type="checkbox" id="pt-1-8"><label for="pt-1-8">Pães congelados</label></div></div>
-        <div class="category"><h3>Carnes</h3><div class="item"><input type="checkbox" id="pt-2-0"><label for="pt-2-0">Peito Peru defumado</label></div><div class="item"><input type="checkbox" id="pt-2-1"><label for="pt-2-1">Bacon</label></div></div>
+        <div class="category"><h3>Carnes</h3><div class="item"><input type="checkbox" id="pt-2-0"><label for="pt-2-0">Peito Peru defumado</label></div><div class="item"><input type="checkbox" id="pt-2-1"><label for="pt-2-1">Bacon</label></div><div class="item"><input type="checkbox" id="pt-2-2"><label for="pt-2-2">Coxas Frango</label></div><div class="item"><input type="checkbox" id="pt-2-3"><label for="pt-2-3">Carne Moída</label></div><div class="item"><input type="checkbox" id="pt-2-4"><label for="pt-2-4">Tilápia</label></div></div>
         <div class="category"><h3>Frutas e Vegetais</h3><div class="item"><input type="checkbox" id="pt-3-0"><label for="pt-3-0">Limão</label></div><div class="item"><input type="checkbox" id="pt-3-1"><label for="pt-3-1">Maçã</label></div><div class="item"><input type="checkbox" id="pt-3-2"><label for="pt-3-2">Banana</label></div><div class="item"><input type="checkbox" id="pt-3-3"><label for="pt-3-3">Tangerina</label></div><div class="item"><input type="checkbox" id="pt-3-4"><label for="pt-3-4">Mamão</label></div><div class="item"><input type="checkbox" id="pt-3-5"><label for="pt-3-5">Ameixas</label></div><div class="item"><input type="checkbox" id="pt-3-6"><label for="pt-3-6">Batata amarela (8)</label></div><div class="item"><input type="checkbox" id="pt-3-7"><label for="pt-3-7">Batata doce (6)</label></div><div class="item"><input type="checkbox" id="pt-3-8"><label for="pt-3-8">Cenoura (4)</label></div><div class="item"><input type="checkbox" id="pt-3-9"><label for="pt-3-9">Beterraba (2)</label></div><div class="item"><input type="checkbox" id="pt-3-10"><label for="pt-3-10">Jerimum</label></div><div class="item"><input type="checkbox" id="pt-3-11"><label for="pt-3-11">Macaxeira</label></div><div class="item"><input type="checkbox" id="pt-3-12"><label for="pt-3-12">Cebola roxa (2)</label></div><div class="item"><input type="checkbox" id="pt-3-13"><label for="pt-3-13">Milho</label></div></div>
         <div class="category"><h3>Queijos</h3><div class="item"><input type="checkbox" id="pt-4-0"><label for="pt-4-0">Queijo cabra</label></div><div class="item"><input type="checkbox" id="pt-4-1"><label for="pt-4-1">Queijo fetta</label></div><div class="item"><input type="checkbox" id="pt-4-2"><label for="pt-4-2">Queijo coalho</label></div></div>
         <div class="category"><h3>Vegetais Frescos</h3><div class="item"><input type="checkbox" id="pt-5-0"><label for="pt-5-0">Cogumelos</label></div><div class="item"><input type="checkbox" id="pt-5-1"><label for="pt-5-1">Pepino</label></div><div class="item"><input type="checkbox" id="pt-5-2"><label for="pt-5-2">Tomates</label></div><div class="item"><input type="checkbox" id="pt-5-3"><label for="pt-5-3">Tomates cerejas</label></div><div class="item"><input type="checkbox" id="pt-5-4"><label for="pt-5-4">Pimentão</label></div><div class="item"><input type="checkbox" id="pt-5-5"><label for="pt-5-5">Brócolis</label></div><div class="item"><input type="checkbox" id="pt-5-6"><label for="pt-5-6">Abacate</label></div><div class="item"><input type="checkbox" id="pt-5-7"><label for="pt-5-7">Couve Bruxelas</label></div><div class="item"><input type="checkbox" id="pt-5-8"><label for="pt-5-8">Aspargos</label></div><div class="item"><input type="checkbox" id="pt-5-9"><label for="pt-5-9">Couve roxa</label></div><div class="item"><input type="checkbox" id="pt-5-10"><label for="pt-5-10">Alho</label></div><div class="item"><input type="checkbox" id="pt-5-11"><label for="pt-5-11">Espinafre</label></div></div>
@@ -118,6 +139,10 @@ var itemEmojis = {
     'Croissants': '🥐', 'Croissant': '🥐',
     'Turkey': '🦃', 'Peru': '🦃',
     'Bacon': '🥓',
+    'Kirkland Protein Bar': '💪',
+    'Chicken': '🍗', 'Frango': '🍗', 'Coxas': '🍗',
+    'Beef': '🥩', 'Carne': '🥩', 'Moída': '🥩',
+    'Tilapia': '🐟', 'Tilápia': '🐟',
     'Lemon': '🍋', 'Limão': '🍋',
     'Apples': '🍎', 'Maçã': '🍎',
     'Bananas': '🍌', 'Banana': '🍌',
@@ -276,9 +301,15 @@ function syncCheckboxes() {
 }
 
 function updateCounter() {
-    var checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+    var visibleList = document.getElementById('btn-en').className === 'active' ? 'list-en' : 'list-pt';
+    var regularChecked = document.querySelectorAll('#' + visibleList + ' input[type="checkbox"]:checked:not([disabled])').length;
+    var permanentCount = permanentItems.length;
+    var totalChecked = regularChecked + permanentCount;
+    
     var lang = document.getElementById('btn-en').className === 'active' ? 'en' : 'pt';
-    var text = lang === 'en' ? 'Selected: ' + checked + ' items' : 'Selecionados: ' + checked + ' itens';
+    var text = lang === 'en' 
+        ? 'Selected: ' + totalChecked + ' items' + (permanentCount > 0 ? ' (' + permanentCount + ' permanent)' : '')
+        : 'Selecionados: ' + totalChecked + ' itens' + (permanentCount > 0 ? ' (' + permanentCount + ' permanentes)' : '');
     document.getElementById('counter').textContent = text;
 }
 
@@ -298,13 +329,33 @@ function generateList() {
     var selectedIds = [];
     var quantities = {};
     var visibleList = document.getElementById('btn-en').className === 'active' ? 'list-en' : 'list-pt';
-    document.querySelectorAll('#' + visibleList + ' input[type="checkbox"]:checked').forEach(function(cb) {
-        var itemName = cb.nextElementSibling.textContent;
-        var qtyInput = cb.parentElement.querySelector('input[type="number"]');
+    
+    // Add permanent items first
+    var permanentContainer = visibleList === 'list-en' ? 'permanent-items-en' : 'permanent-items-pt';
+    document.querySelectorAll('#' + permanentContainer + ' .item').forEach(function(itemDiv) {
+        var cb = itemDiv.querySelector('input[type="checkbox"]');
+        var itemName = itemDiv.querySelector('label').textContent;
+        var qtyInput = itemDiv.querySelector('input[type="number"]');
         var qty = qtyInput ? qtyInput.value || '1' : '1';
-        selected.push(itemName);
-        selectedIds.push(cb.id);
-        quantities[cb.id] = qty;
+        var originalId = qtyInput ? qtyInput.getAttribute('data-original-id') : '';
+        
+        if (originalId) {
+            selected.push(itemName);
+            selectedIds.push(originalId);
+            quantities[originalId] = qty;
+        }
+    });
+    
+    // Add regular checked items
+    document.querySelectorAll('#' + visibleList + ' input[type="checkbox"]:checked').forEach(function(cb) {
+        if (!cb.disabled) { // Skip permanent items (they're disabled)
+            var itemName = cb.nextElementSibling.textContent;
+            var qtyInput = cb.parentElement.querySelector('input[type="number"]');
+            var qty = qtyInput ? qtyInput.value || '1' : '1';
+            selected.push(itemName);
+            selectedIds.push(cb.id);
+            quantities[cb.id] = qty;
+        }
     });
     
     var lang = document.getElementById('btn-en').className === 'active' ? 'en' : 'pt';
@@ -347,6 +398,139 @@ function generateList() {
     }
 }
 
+// Permanent Items Management
+var manageMode = false;
+var permanentItems = JSON.parse(localStorage.getItem('costco_permanent_items') || '[]');
+
+function toggleManageMode() {
+    manageMode = !manageMode;
+    var lang = document.getElementById('btn-en').className === 'active' ? 'en' : 'pt';
+    
+    if (manageMode) {
+        document.querySelectorAll('.item').forEach(function(itemDiv) {
+            if (!itemDiv.closest('#permanent-items-en') && !itemDiv.closest('#permanent-items-pt')) {
+                var label = itemDiv.querySelector('label');
+                if (label && !itemDiv.querySelector('.btn-pin')) {
+                    var checkbox = itemDiv.querySelector('input[type="checkbox"]');
+                    var itemId = checkbox.id;
+                    var itemName = label.textContent.replace(/^[^\s]+\s/, ''); // Remove emoji
+                    
+                    var isPermanent = permanentItems.some(function(p) { return p.id === itemId; });
+                    if (!isPermanent) {
+                        var pinBtn = document.createElement('button');
+                        pinBtn.className = 'btn-pin';
+                        pinBtn.textContent = lang === 'en' ? '📌 Pin' : '📌 Fixar';
+                        pinBtn.onclick = function() { addToPermanent(itemId, itemName, lang); };
+                        label.appendChild(pinBtn);
+                    }
+                }
+            }
+        });
+    } else {
+        document.querySelectorAll('.btn-pin, .btn-unpin').forEach(function(btn) { btn.remove(); });
+    }
+}
+
+function addToPermanent(itemId, itemName, lang) {
+    var permanentItem = {
+        id: itemId,
+        nameEn: lang === 'en' ? itemName : getTranslation(itemId, 'en'),
+        namePt: lang === 'pt' ? itemName : getTranslation(itemId, 'pt')
+    };
+    
+    permanentItems.push(permanentItem);
+    localStorage.setItem('costco_permanent_items', JSON.stringify(permanentItems));
+    renderPermanentItems();
+    toggleManageMode(); // Exit manage mode
+    toggleManageMode(); // Re-enter to refresh buttons
+}
+
+function removeFromPermanent(itemId) {
+    permanentItems = permanentItems.filter(function(p) { return p.id !== itemId; });
+    localStorage.setItem('costco_permanent_items', JSON.stringify(permanentItems));
+    renderPermanentItems();
+    if (manageMode) {
+        toggleManageMode();
+        toggleManageMode();
+    }
+}
+
+function getTranslation(itemId, targetLang) {
+    var checkbox = document.getElementById(itemId);
+    if (!checkbox) return '';
+    
+    var otherLang = targetLang === 'en' ? 'pt' : 'en';
+    var otherId = itemId.replace(otherLang + '-', targetLang + '-');
+    var otherCheckbox = document.getElementById(otherId);
+    if (!otherCheckbox) return '';
+    
+    var label = otherCheckbox.nextElementSibling;
+    return label ? label.textContent.replace(/^[^\s]+\s/, '') : '';
+}
+
+function renderPermanentItems() {
+    var enContainer = document.getElementById('permanent-items-en');
+    var ptContainer = document.getElementById('permanent-items-pt');
+    
+    enContainer.innerHTML = '';
+    ptContainer.innerHTML = '';
+    
+    if (permanentItems.length === 0) {
+        document.getElementById('permanent-en').style.display = 'none';
+        document.getElementById('permanent-pt').style.display = 'none';
+        return;
+    }
+    
+    document.getElementById('permanent-en').style.display = 'block';
+    document.getElementById('permanent-pt').style.display = 'block';
+    
+    permanentItems.forEach(function(perm) {
+        // English version
+        var itemDivEn = document.createElement('div');
+        itemDivEn.className = 'item';
+        itemDivEn.innerHTML = '<input type="checkbox" id="perm-' + perm.id + '-en" checked disabled><label>' + getItemEmoji(perm.nameEn) + perm.nameEn + '</label>';
+        
+        var qtyInputEn = document.createElement('input');
+        qtyInputEn.type = 'number';
+        qtyInputEn.min = '1';
+        qtyInputEn.value = '1';
+        qtyInputEn.setAttribute('data-original-id', perm.id.replace('pt-', 'en-'));
+        itemDivEn.appendChild(qtyInputEn);
+        
+        if (manageMode) {
+            var unpinBtnEn = document.createElement('button');
+            unpinBtnEn.className = 'btn-unpin';
+            unpinBtnEn.textContent = '✕ Unpin';
+            unpinBtnEn.onclick = function() { removeFromPermanent(perm.id); };
+            itemDivEn.querySelector('label').appendChild(unpinBtnEn);
+        }
+        
+        enContainer.appendChild(itemDivEn);
+        
+        // Portuguese version
+        var itemDivPt = document.createElement('div');
+        itemDivPt.className = 'item';
+        itemDivPt.innerHTML = '<input type="checkbox" id="perm-' + perm.id + '-pt" checked disabled><label>' + getItemEmoji(perm.namePt) + perm.namePt + '</label>';
+        
+        var qtyInputPt = document.createElement('input');
+        qtyInputPt.type = 'number';
+        qtyInputPt.min = '1';
+        qtyInputPt.value = '1';
+        qtyInputPt.setAttribute('data-original-id', perm.id);
+        itemDivPt.appendChild(qtyInputPt);
+        
+        if (manageMode) {
+            var unpinBtnPt = document.createElement('button');
+            unpinBtnPt.className = 'btn-unpin';
+            unpinBtnPt.textContent = '✕ Remover';
+            unpinBtnPt.onclick = function() { removeFromPermanent(perm.id); };
+            itemDivPt.querySelector('label').appendChild(unpinBtnPt);
+        }
+        
+        ptContainer.appendChild(itemDivPt);
+    });
+}
+
 // Add quantity inputs and emojis to all items
 document.querySelectorAll('.item').forEach(function(itemDiv) {
     var label = itemDiv.querySelector('label');
@@ -370,6 +554,10 @@ var allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
 for (var i = 0; i < allCheckboxes.length; i++) {
     allCheckboxes[i].addEventListener('change', updateCounter);
 }
+
+// Initialize permanent items on page load
+renderPermanentItems();
+updateCounter();
     </script>
 </body>
 </html>
