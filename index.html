@@ -317,7 +317,8 @@ function generateList() {
     var itemsParam = encodeURIComponent(selectedIds.join(','));
     var qtysParam = encodeURIComponent(JSON.stringify(quantities));
     var customParam = encodeURIComponent(JSON.stringify(customItemsForGeneration));
-    var shareUrl = window.location.origin + window.location.pathname + 'list.html?items=' + itemsParam + '&qtys=' + qtysParam + '&custom=' + customParam + '&lang=' + lang;
+    var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
+    var shareUrl = baseUrl + 'list.html?items=' + itemsParam + '&qtys=' + qtysParam + '&custom=' + customParam + '&lang=' + lang;
     
     var today = new Date();
     var day = String(today.getDate()).padStart(2, '0');
