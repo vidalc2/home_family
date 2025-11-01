@@ -83,6 +83,8 @@
 
         var params = new URLSearchParams(window.location.search);
         var itemIds = params.get('items') ? params.get('items').split(',') : [];
+        var quantities = params.get('qtys') ? JSON.parse(decodeURIComponent(params.get('qtys'))) : {};
+        var customItemsFromUrl = params.get('custom') ? JSON.parse(decodeURIComponent(params.get('custom'))) : [];
         var lang = params.get('lang') || 'en';
         
         var today = new Date();
@@ -92,20 +94,165 @@
         document.getElementById('date').textContent = day + '/' + month + '/' + year;
         
         var listDiv = document.getElementById('list');
-        var total = itemIds.length;
+        var total = itemIds.length + customItemsFromUrl.length;
         var checked = 0;
+        
+        var itemEmojis = {
+            'Gabriel Work Bars': '🍫', 'Barrinha Gabriel': '🍫',
+            'Fiber Bars': '🍫', 'Barra cereal': '🍫',
+            'Bars': '🍫', 'Rice Krispies': '🍫',
+            'Seeds': '🌻', 'Sementes': '🌻',
+            'Cashews': '🥜', 'Castanhas': '🥜',
+            'Raisins': '🍇', 'Uvas passas': '🍇',
+            'Sesame': '🌰', 'Gergelim': '🌰',
+            'Cake': '🎂', 'Bolo': '🎂',
+            'Cookies': '🍪', 'Ginger': '🍪',
+            'Muffins': '🧁', 'Bolinho': '🧁',
+            'Bread': '🍞', 'Pão': '🍞',
+            'Hot Dog': '🌭',
+            'Tortillas': '🌮',
+            'Croissant': '🥐',
+            'Turkey': '🦃', 'Peru': '🦃',
+            'Bacon': '🥓',
+            'Lemon': '🍋', 'Limão': '🍋',
+            'Apple': '🍎', 'Maçã': '🍎',
+            'Banana': '🍌',
+            'Tangerine': '🍊', 'Tangerina': '🍊',
+            'Papaya': '🍈', 'Mamão': '🍈',
+            'Prune': '🫐', 'Ameixa': '🫐',
+            'Potato': '🥔', 'Batata': '🥔',
+            'Carrot': '🥕', 'Cenoura': '🥕',
+            'Beet': '🫐', 'Beterraba': '🫐',
+            'Pumpkin': '🎃', 'Jerimum': '🎃',
+            'Cassava': '🥔', 'Macaxeira': '🥔',
+            'Onion': '🧅', 'Cebola': '🧅',
+            'Corn': '🌽', 'Milho': '🌽',
+            'Cheese': '🧀', 'Queijo': '🧀',
+            'Mushroom': '🍄', 'Cogumelo': '🍄',
+            'Cucumber': '🥒', 'Pepino': '🥒',
+            'Tomato': '🍅', 'Tomate': '🍅',
+            'Pepper': '🫑', 'Pimentão': '🫑',
+            'Broccoli': '🥦', 'Brócolis': '🥦',
+            'Avocado': '🥑', 'Abacate': '🥑',
+            'Brussels': '🥬', 'Couve Bruxelas': '🥬',
+            'Asparagus': '🌿', 'Aspargo': '🌿',
+            'Cabbage': '🥬', 'Couve': '🥬',
+            'Garlic': '🧄', 'Alho': '🧄',
+            'Spinach': '🥬', 'Espinafre': '🥬',
+            'Milk': '🥛', 'Leite': '🥛',
+            'Yogurt': '🥛', 'Iogurte': '🥛',
+            'Butter': '🧈', 'Manteiga': '🧈',
+            'Ghee': '🧈',
+            'Coconut Oil': '🥥', 'Óleo coco': '🥥',
+            'Cream': '🥛', 'Creme': '🥛',
+            'Egg': '🥚', 'Ovo': '🥚',
+            'Hummus': '🫘',
+            'Wipe': '🧻', 'Lenço': '🧻',
+            'Soap': '🧼', 'Sabonete': '🧼', 'Sabão': '🧼',
+            'Cleaner': '🧹', 'Limpador': '🧹',
+            'Spray': '💧',
+            'Glove': '🧤', 'Luva': '🧤',
+            'Sponge': '🧽', 'Esponja': '🧽',
+            'Detergent': '🧴', 'Detergente': '🧴',
+            'Paper': '🧻', 'Papel': '🧻',
+            'Foil': '📋', 'Alumínio': '📋',
+            'Bag': '🛍️', 'Saco': '🛍️',
+            'Chip': '🍿',
+            'Pringles': '🥔',
+            'Goldfish': '🐟',
+            'Oreo': '🍪',
+            'Pizza': '🍕',
+            'Strawberr': '🍓', 'Morango': '🍓',
+            'Nugget': '🍗',
+            'Fries': '🍟', 'Batata frita': '🍟',
+            'Olive Oil': '🫒', 'Azeite': '🫒',
+            'Vinegar': '🧪', 'Vinagre': '🧪',
+            'Mayonnaise': '🥫', 'Maionese': '🥫',
+            'Ketchup': '🍅',
+            'Mustard': '🌭', 'Mostarda': '🌭',
+            'Soy': '🥢', 'Shoyu': '🥢',
+            'Tuna': '🐟', 'Atum': '🐟',
+            'Salt': '🧂', 'Sal': '🧂',
+            'Pepper': '🌶️', 'Pimenta': '🌶️',
+            'Paprika': '🌶️', 'Páprica': '🌶️',
+            'Ginger': '🫚', 'Gengibre': '🫚',
+            'Cinnamon': '🥘', 'Canela': '🥘',
+            'Oregano': '🌿', 'Orégano': '🌿',
+            'Shampoo': '🧴',
+            'Conditioner': '🧴', 'Condicionador': '🧴',
+            'Lotion': '🧴', 'Hidratante': '🧴',
+            'Toothpaste': '🪥', 'Pasta': '🪥',
+            'Floss': '🦷', 'Fio dental': '🦷',
+            'Mouthwash': '🧪', 'Enxaguante': '🧪',
+            'Pad': '🩹', 'Absorvente': '🩹',
+            'Vitamin': '💊', 'Vitamina': '💊',
+            'Magnesium': '💊', 'Magnésio': '💊',
+            'Zinc': '💊', 'Zinco': '💊',
+            'Omega': '💊', 'Ômega': '💊',
+            'Juice': '🧃', 'Suco': '🧃',
+            'Cereal': '🥣',
+            'Pasta': '🍝', 'Macarrão': '🍝',
+            'Rice': '🍚', 'Arroz': '🍚',
+            'Quinoa': '🌾',
+            'Oat': '🌾', 'Aveia': '🌾',
+            'Flour': '🌾', 'Farinha': '🌾',
+            'Popcorn': '🍿', 'Pipoca': '🍿',
+            'Tapioca': '🥘',
+            'Coffee': '☕', 'Café': '☕',
+            'Tea': '🍵', 'Chá': '🍵',
+            'Water': '💧', 'Água': '💧',
+            'Soda': '🥤', 'Refrigerante': '🥤',
+            'Ice Cream': '🍨', 'Sorvete': '🍨',
+            'Jam': '🍓', 'Geleia': '🍓',
+            'Pancake': '🥞', 'Panqueca': '🥞',
+            'Syrup': '🍯', 'Maple': '🍯',
+            'Dulce': '🍯', 'Doce': '🍯',
+            'Honey': '🍯', 'Mel': '🍯',
+            'Granola': '🥣',
+            'Sugar': '🍬', 'Açúcar': '🍬',
+            'Chocolate': '🍫',
+            'Stevia': '🌿'
+        };
+        
+        function getItemEmoji(itemName) {
+            for (var key in itemEmojis) {
+                if (itemName.toLowerCase().includes(key.toLowerCase())) {
+                    return itemEmojis[key] + ' ';
+                }
+            }
+            return '';
+        }
         
         itemIds.forEach(function(id) {
             var itemName = itemMap[id] || id;
+            var emoji = getItemEmoji(itemName);
+            var qty = quantities[id] || '1';
             var itemDiv = document.createElement('div');
             itemDiv.className = 'item';
-            itemDiv.innerHTML = '<input type="checkbox" id="' + id + '"><label for="' + id + '">' + itemName + '</label>';
+            itemDiv.innerHTML = '<input type="checkbox" id="' + id + '"><label for="' + id + '">' + emoji + itemName + ' (x' + qty + ')</label>';
             listDiv.appendChild(itemDiv);
             
             var checkbox = itemDiv.querySelector('input');
             checkbox.addEventListener('change', function() {
                 itemDiv.className = this.checked ? 'item checked' : 'item';
                 checked = document.querySelectorAll('input:checked').length;
+                updateCounter();
+            });
+        });
+        
+        customItemsFromUrl.forEach(function(itemName, index) {
+            var customId = 'pending-' + index;
+            var itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.style.background = '#fff9e6';
+            itemDiv.innerHTML = '<input type="checkbox" id="' + customId + '" checked><label for="' + customId + '">❓ ' + itemName + ' <span style="font-size: 11px; color: #f57c00;">(PENDING APPROVAL)</span></label>' +
+                '<button onclick="approveCustomItem(\'' + customId + '\', \'' + itemName + '\', false)" style="padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 3px; font-size: 12px; margin-left: 5px;">✓ Add to Main</button>' +
+                '<button onclick="approveCustomItem(\'' + customId + '\', \'' + itemName + '\', true)" style="padding: 4px 8px; background: #f57c00; color: white; border: none; border-radius: 3px; font-size: 12px; margin-left: 5px;">#OneTime</button>';
+            listDiv.appendChild(itemDiv);
+            
+            var checkbox = itemDiv.querySelector('input');
+            checkbox.addEventListener('change', function() {
+                itemDiv.style.background = this.checked ? '#fff9e6' : '#fff';
                 updateCounter();
             });
         });
@@ -120,6 +267,31 @@
         }
         
         var customItems = [];
+        var approvedCustomItems = [];
+        
+        function approveCustomItem(itemId, itemName, oneTimeOnly) {
+            var itemDiv = document.getElementById(itemId).parentElement;
+            itemDiv.style.background = '#e8f5e9';
+            itemDiv.innerHTML = '<input type="checkbox" id="' + itemId + '" checked><label for="' + itemId + '">✅ ' + itemName + (oneTimeOnly ? ' <span style="font-size: 11px; color: #f57c00;">#onetimeonly</span>' : '') + '</label>';
+            
+            approvedCustomItems.push({
+                name: itemName,
+                oneTimeOnly: oneTimeOnly,
+                id: itemId
+            });
+            
+            var checkbox = itemDiv.querySelector('input');
+            checkbox.addEventListener('change', function() {
+                itemDiv.className = this.checked ? 'item checked' : 'item';
+                updateCounter();
+            });
+            
+            customItems.push({
+                name: itemName,
+                oneTimeOnly: oneTimeOnly,
+                id: itemId
+            });
+        }
         
         function addCustomItem() {
             var input = document.getElementById('custom-item');

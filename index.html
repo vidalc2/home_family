@@ -12,9 +12,10 @@
         .active { background: #667eea; color: white; }
         .category { margin: 20px 0; background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .category h3 { margin: 0 0 10px 0; color: #667eea; }
-        .item { padding: 8px; display: flex; align-items: center; }
-        .item input { margin-right: 10px; width: 20px; height: 20px; }
+        .item { padding: 8px; display: flex; align-items: center; gap: 8px; }
+        .item input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; flex-shrink: 0; }
         .item label { flex: 1; cursor: pointer; }
+        .item input[type="number"] { width: 50px; padding: 4px; border: 2px solid #ddd; border-radius: 4px; text-align: center; }
         .item.selected { background: #e8f5e9; }
         .counter { text-align: center; font-size: 18px; font-weight: bold; margin: 10px 0; }
         .actions { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
@@ -85,6 +86,13 @@
         <div class="category"><h3>Doces</h3><div class="item"><input type="checkbox" id="pt-18-0"><label for="pt-18-0">Pão queijo</label></div><div class="item"><input type="checkbox" id="pt-18-1"><label for="pt-18-1">Sorvete</label></div><div class="item"><input type="checkbox" id="pt-18-2"><label for="pt-18-2">Geleia morango</label></div><div class="item"><input type="checkbox" id="pt-18-3"><label for="pt-18-3">Panqueca</label></div><div class="item"><input type="checkbox" id="pt-18-4"><label for="pt-18-4">Maple Syrup</label></div><div class="item"><input type="checkbox" id="pt-18-5"><label for="pt-18-5">Doce leite</label></div><div class="item"><input type="checkbox" id="pt-18-6"><label for="pt-18-6">Leite condensado</label></div><div class="item"><input type="checkbox" id="pt-18-7"><label for="pt-18-7">Mel</label></div><div class="item"><input type="checkbox" id="pt-18-8"><label for="pt-18-8">Granola</label></div><div class="item"><input type="checkbox" id="pt-18-9"><label for="pt-18-9">Açúcar demerara</label></div><div class="item"><input type="checkbox" id="pt-18-10"><label for="pt-18-10">Açúcar branco</label></div><div class="item"><input type="checkbox" id="pt-18-11"><label for="pt-18-11">Chocolate quente</label></div><div class="item"><input type="checkbox" id="pt-18-12"><label for="pt-18-12">Stevia</label></div></div>
     </div>
     
+    <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px;">
+        <h3 style="margin: 0 0 10px 0; color: #667eea;">Add Custom Items / Adicionar Itens</h3>
+        <div id="custom-items-list"></div>
+        <input type="text" id="new-custom-item" placeholder="Enter item name / Nome do item" style="width: calc(100% - 90px); padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; margin-right: 5px;">
+        <button onclick="addCustomItemToList()" style="padding: 10px 15px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px;">➕ Add</button>
+    </div>
+    
     <div style="height: 150px;"></div>
     
     <div class="actions">
@@ -93,6 +101,155 @@
     </div>
 
     <script>
+var itemEmojis = {
+    'Gabriel Work Bars': '🍫', 'Barrinha Gabriel': '🍫',
+    'Fiber Bars (Chocolate)': '🍫', 'Barra cereal chocolate': '🍫',
+    'Rice Krispies Bars': '🍫', 'Barrinha Rice Krispies': '🍫',
+    'Pumpkin Seeds': '🌻', 'Sementes abóbora': '🌻',
+    'Cashews': '🥜', 'Castanhas': '🥜',
+    'Raisins': '�葡', 'Uvas passas': '🍇',
+    'Sesame Seeds': '🌰', 'Gergelim': '🌰',
+    'Cake': '🎂', 'Bolo': '🎂',
+    'Cookies': '🍪', 'Ginger Cookies': '🍪',
+    'Muffins': '🧁', 'Bolinho': '🧁',
+    'Bread': '🍞', 'Pão': '🍞',
+    'Hot Dog Buns': '🌭', 'Pão hot dog': '🌭',
+    'Tortillas': '🌮', 'Tortillas integral': '🌮',
+    'Croissants': '🥐', 'Croissant': '🥐',
+    'Turkey': '🦃', 'Peru': '🦃',
+    'Bacon': '🥓',
+    'Lemon': '🍋', 'Limão': '🍋',
+    'Apples': '🍎', 'Maçã': '🍎',
+    'Bananas': '🍌', 'Banana': '🍌',
+    'Tangerines': '🍊', 'Tangerina': '🍊',
+    'Papaya': '🍈', 'Mamão': '🍈',
+    'Prunes': '🫐', 'Ameixas': '🫐',
+    'Potatoes': '🥔', 'Batata': '🥔',
+    'Carrots': '🥕', 'Cenoura': '🥕',
+    'Beets': '🫐', 'Beterraba': '🫐',
+    'Pumpkin': '🎃', 'Jerimum': '🎃',
+    'Cassava': '🥔', 'Macaxeira': '🥔',
+    'Onions': '🧅', 'Cebola': '🧅',
+    'Corn': '🌽', 'Milho': '🌽',
+    'Cheese': '🧀', 'Queijo': '🧀',
+    'Mushrooms': '🍄', 'Cogumelos': '🍄',
+    'Cucumber': '🥒', 'Pepino': '🥒',
+    'Tomatoes': '🍅', 'Tomates': '🍅',
+    'Peppers': '🫑', 'Pimentão': '🫑',
+    'Broccoli': '🥦', 'Brócolis': '🥦',
+    'Avocado': '🥑', 'Abacate': '🥑',
+    'Brussels Sprouts': '🥬', 'Couve Bruxelas': '🥬',
+    'Asparagus': '🌿', 'Aspargos': '🌿',
+    'Cabbage': '🥬', 'Couve': '🥬',
+    'Garlic': '🧄', 'Alho': '🧄',
+    'Spinach': '🥬', 'Espinafre': '🥬',
+    'Milk': '🥛', 'Leite': '🥛',
+    'Yogurt': '🥛', 'Iogurte': '🥛',
+    'Butter': '🧈', 'Manteiga': '🧈',
+    'Ghee': '🧈', 'Manteiga terra': '🧈',
+    'Coconut Oil': '🥥', 'Óleo coco': '🥥',
+    'Cream': '🥛', 'Creme': '🥛',
+    'Eggs': '🥚', 'Ovos': '🥚',
+    'Hummus': '🫘',
+    'Wipes': '🧻', 'Lenços': '🧻',
+    'Soap': '🧼', 'Sabonete': '🧼', 'Sabão': '🧼',
+    'Cleaner': '🧹', 'Limpador': '🧹',
+    'Spray': '💧',
+    'Gloves': '🧤', 'Luvas': '🧤',
+    'Sponges': '🧽', 'Esponjas': '🧽',
+    'Detergent': '🧴', 'Detergente': '🧴',
+    'Paper': '🧻', 'Papel': '🧻',
+    'Foil': '📋', 'Alumínio': '📋',
+    'Bags': '🛍️', 'Sacos': '🛍️',
+    'Chips': '🍿',
+    'Pringles': '🥔',
+    'Goldfish': '🐟',
+    'Oreos': '🍪', 'Oreo': '🍪',
+    'Pizza': '🍕',
+    'Strawberries': '🍓', 'Morangos': '🍓',
+    'Nuggets': '🍗',
+    'Fries': '🍟', 'Batata frita': '🍟',
+    'Olive Oil': '🫒', 'Azeite': '🫒',
+    'Vinegar': '🧪', 'Vinagre': '🧪',
+    'Mayonnaise': '🥫', 'Maionese': '🥫',
+    'Ketchup': '🍅',
+    'Mustard': '🌭', 'Mostarda': '🌭',
+    'Soy Sauce': '🥢', 'Shoyu': '🥢',
+    'Tuna': '🐟', 'Atum': '🐟',
+    'Salt': '🧂', 'Sal': '🧂',
+    'Pepper': '🌶️', 'Pimenta': '🌶️',
+    'Paprika': '🌶️', 'Páprica': '🌶️',
+    'Ginger': '🫚', 'Gengibre': '🫚',
+    'Cinnamon': '🥘', 'Canela': '🥘',
+    'Oregano': '🌿', 'Orégano': '🌿',
+    'Shampoo': '🧴',
+    'Conditioner': '🧴', 'Condicionador': '🧴',
+    'Lotion': '🧴', 'Hidratante': '🧴',
+    'Toothpaste': '🪥', 'Pasta': '🪥',
+    'Floss': '🦷', 'Fio dental': '🦷',
+    'Mouthwash': '🧪', 'Enxaguante': '🧪',
+    'Pads': '🩹', 'Absorvente': '🩹',
+    'Vitamin': '💊', 'Vitamina': '💊',
+    'Magnesium': '💊', 'Magnésio': '💊',
+    'Zinc': '💊', 'Zinco': '💊',
+    'Omega': '💊', 'Ômega': '💊',
+    'Juice': '🧃', 'Suco': '🧃',
+    'Cereal': '🥣',
+    'Pasta': '🍝', 'Macarrão': '🍝',
+    'Rice': '🍚', 'Arroz': '🍚',
+    'Quinoa': '🌾',
+    'Oats': '🌾', 'Aveia': '🌾',
+    'Flour': '🌾', 'Farinha': '🌾',
+    'Popcorn': '🍿', 'Pipoca': '🍿',
+    'Tapioca': '🥘',
+    'Coffee': '☕', 'Café': '☕',
+    'Tea': '🍵', 'Chá': '🍵',
+    'Water': '💧', 'Água': '💧',
+    'Soda': '🥤', 'Refrigerante': '🥤',
+    'Ice Cream': '🍨', 'Sorvete': '🍨',
+    'Jam': '🍓', 'Geleia': '🍓',
+    'Pancake': '🥞', 'Panqueca': '🥞',
+    'Syrup': '🍯', 'Maple Syrup': '🍯',
+    'Dulce de Leche': '🍯', 'Doce leite': '🍯',
+    'Honey': '🍯', 'Mel': '🍯',
+    'Granola': '🥣',
+    'Sugar': '🍬', 'Açúcar': '🍬',
+    'Chocolate': '🍫',
+    'Stevia': '🌿'
+};
+
+var customItemsForGeneration = [];
+
+function addCustomItemToList() {
+    var input = document.getElementById('new-custom-item');
+    var itemName = input.value.trim();
+    if (!itemName) return;
+    
+    var itemDiv = document.createElement('div');
+    itemDiv.style.cssText = 'padding: 8px; margin: 5px 0; background: #fff9e6; border-radius: 5px; display: flex; align-items: center; gap: 8px;';
+    itemDiv.innerHTML = '<span style="flex: 1;">' + itemName + '</span><button onclick="removeCustomItem(this)" style="padding: 5px 10px; background: #c62828; color: white; border: none; border-radius: 3px; cursor: pointer;">✕</button>';
+    
+    document.getElementById('custom-items-list').appendChild(itemDiv);
+    customItemsForGeneration.push(itemName);
+    input.value = '';
+}
+
+function removeCustomItem(btn) {
+    var itemDiv = btn.parentElement;
+    var itemName = itemDiv.querySelector('span').textContent;
+    customItemsForGeneration = customItemsForGeneration.filter(function(name) { return name !== itemName; });
+    itemDiv.remove();
+}
+
+function getItemEmoji(itemName) {
+    for (var key in itemEmojis) {
+        if (itemName.toLowerCase().includes(key.toLowerCase())) {
+            return itemEmojis[key] + ' ';
+        }
+    }
+    return '';
+}
+
 function showLang(lang) {
     syncCheckboxes();
     document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
@@ -139,20 +296,28 @@ function clearAll() {
 function generateList() {
     var selected = [];
     var selectedIds = [];
+    var quantities = {};
     var visibleList = document.getElementById('btn-en').className === 'active' ? 'list-en' : 'list-pt';
     document.querySelectorAll('#' + visibleList + ' input[type="checkbox"]:checked').forEach(function(cb) {
-        selected.push(cb.nextElementSibling.textContent);
+        var itemName = cb.nextElementSibling.textContent;
+        var qtyInput = cb.parentElement.querySelector('input[type="number"]');
+        var qty = qtyInput ? qtyInput.value || '1' : '1';
+        selected.push(itemName);
         selectedIds.push(cb.id);
+        quantities[cb.id] = qty;
     });
     
     var lang = document.getElementById('btn-en').className === 'active' ? 'en' : 'pt';
-    if (selected.length === 0) {
+    
+    if (selected.length === 0 && customItemsForGeneration.length === 0) {
         alert(lang === 'en' ? 'Please select at least one item!' : 'Selecione pelo menos um item!');
         return;
     }
     
     var itemsParam = encodeURIComponent(selectedIds.join(','));
-    var shareUrl = window.location.origin + window.location.pathname + 'list.html?items=' + itemsParam + '&lang=' + lang;
+    var qtysParam = encodeURIComponent(JSON.stringify(quantities));
+    var customParam = encodeURIComponent(JSON.stringify(customItemsForGeneration));
+    var shareUrl = window.location.origin + window.location.pathname + 'list.html?items=' + itemsParam + '&qtys=' + qtysParam + '&custom=' + customParam + '&lang=' + lang;
     
     var today = new Date();
     var day = String(today.getDate()).padStart(2, '0');
@@ -180,6 +345,25 @@ function generateList() {
         }
     }
 }
+
+// Add quantity inputs and emojis to all items
+document.querySelectorAll('.item').forEach(function(itemDiv) {
+    var label = itemDiv.querySelector('label');
+    if (label) {
+        var itemName = label.textContent;
+        var emoji = getItemEmoji(itemName);
+        if (emoji) {
+            label.innerHTML = emoji + label.textContent;
+        }
+        
+        var qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.min = '1';
+        qtyInput.value = '1';
+        qtyInput.style.cssText = 'width: 50px; padding: 4px; border: 2px solid #ddd; border-radius: 4px; text-align: center;';
+        itemDiv.appendChild(qtyInput);
+    }
+});
 
 var allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
 for (var i = 0; i < allCheckboxes.length; i++) {
