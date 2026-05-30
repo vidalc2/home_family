@@ -230,18 +230,28 @@
     ]}
   ];
 
-  /* ---- Optimized Costco shopping route -------------------------
-     Order in which the SHOP page groups the sections, chosen to
-     minimise backtracking: refrigerated/fresh perimeter first
-     (bakery → deli/meat → produce → dairy), then frozen, then the
-     centre dry-grocery aisles, finishing with bulk household and
-     health/beauty near the front/checkout. Values are category
-     keys; edit this array to match the real warehouse path.
+  /* ---- Optimized Costco Ancaster shopping route ----------------
+     Costco Ancaster (100 Legend Court) is a standard-format
+     warehouse with Bakery, Fresh Deli/Meat and Fresh Produce
+     departments (per Costco's public warehouse listing); no floor
+     map is published. This order blends the standard Costco
+     counterclockwise traffic pattern with the route inferred from
+     the owner's own proven sequence:
+       • fresh perimeter first (bakery → deli/meat → cheese →
+         produce → dairy), with cheese moved next to the deli and
+         the two produce groups kept together to cut zig-zag;
+       • frozen pulled up beside dairy so all cold items are picked
+         in one pass (less backtracking, better cold-chain);
+       • a single straight sweep of the centre dry-grocery aisles;
+       • bulk paper/household and health & beauty last, near the
+         checkout.
+     Values are category keys — edit this array after checking the
+     real aisle path on the ground.
   --------------------------------------------------------------- */
   var ROUTE_KEYS = [
-    'bakery', 'meat', 'produce', 'freshveg', 'cheese', 'dairy', 'frozen',
-    'snacks', 'bars', 'pasta', 'canned', 'oils', 'spices', 'sweets',
-    'beverages', 'kids', 'cleaning', 'bathroom', 'vitamins'
+    'bars', 'bakery', 'meat', 'cheese', 'produce', 'freshveg', 'dairy', 'frozen',
+    'snacks', 'pasta', 'canned', 'oils', 'spices', 'sweets', 'beverages', 'kids',
+    'cleaning', 'bathroom', 'vitamins'
   ];
 
   /* ---- Derived lookups ----------------------------------------- */
