@@ -2,39 +2,146 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Costco List">
     <title>Costco Shopping List</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-        h1 { text-align: center; color: #667eea; }
-        .date { text-align: center; color: #666; margin-bottom: 20px; }
-        .item { padding: 12px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; }
-        .item input { width: 20px; height: 20px; margin-right: 12px; cursor: pointer; }
-        .item label { flex: 1; cursor: pointer; }
-        .item.checked { background: #e8f5e9; text-decoration: line-through; opacity: 0.6; }
-        .back { text-align: center; margin: 20px 0; }
-        .back a { color: #667eea; text-decoration: none; font-size: 16px; }
-        .counter { text-align: center; font-size: 16px; margin: 15px 0; color: #666; }
+        :root {
+            --brand: #667eea;
+            --brand-2: #764ba2;
+            --green: #25D366;
+            --ink: #2b2f38;
+            --muted: #7a8190;
+            --bg: #eef0f6;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 600px; margin: 0 auto; color: var(--ink); background: var(--bg);
+            /* keep content clear of the iPhone notch sides and the fixed Done button + home indicator */
+            padding:
+                0
+                calc(14px + env(safe-area-inset-right))
+                calc(150px + env(safe-area-inset-bottom))
+                calc(14px + env(safe-area-inset-left));
+        }
+
+        /* App header */
+        .app-header {
+            margin: 0 calc(-14px - env(safe-area-inset-right)) 14px calc(-14px - env(safe-area-inset-left));
+            padding: calc(18px + env(safe-area-inset-top)) 16px 20px;
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+            color: #fff; text-align: center;
+            border-radius: 0 0 22px 22px; box-shadow: 0 6px 18px rgba(102,126,234,0.35);
+        }
+        .app-header img {
+            width: 58px; height: 58px; border-radius: 50%; object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.65); box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        h1 { font-size: 22px; margin: 10px 0 2px; color: #fff; letter-spacing: 0.3px; }
+        .date { font-size: 13px; color: rgba(255,255,255,0.9); margin: 0; }
+
+        /* Status / progress card */
+        .status-card {
+            background: #fff; border-radius: 16px; padding: 14px 16px; margin-bottom: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        }
+        .counter { text-align: center; font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
+        .counter b { color: var(--brand); }
+        .progress-wrap { height: 12px; background: #e7e9f0; border-radius: 10px; overflow: hidden; }
+        .progress-bar {
+            height: 100%; width: 0;
+            background: linear-gradient(90deg, #34d977, var(--green));
+            border-radius: 10px; transition: width 0.35s ease;
+        }
+
+        /* Sections */
+        .section {
+            background: #fff; border-radius: 16px; margin: 0 0 16px; overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        }
+        .section-header {
+            display: flex; align-items: center; gap: 10px; padding: 13px 16px;
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+            color: #fff; font-size: 16px; font-weight: 700;
+            position: sticky; top: 0; z-index: 5;
+        }
+        .section-header .sec-emoji { font-size: 19px; line-height: 1; }
+        .section-header .sec-count {
+            margin-left: auto; font-size: 13px; font-weight: 600;
+            background: rgba(255,255,255,0.25); padding: 3px 11px; border-radius: 20px; min-width: 42px; text-align: center;
+        }
+        .section.done .section-header { background: linear-gradient(135deg, #2bbf63, var(--green)); }
+
+        /* Items */
+        .item {
+            padding: 14px 16px; background: #fff; border-bottom: 1px solid #eef0f4;
+            display: flex; align-items: center; gap: 14px; transition: background 0.15s ease;
+        }
+        .item:last-child { border-bottom: none; }
+        .item input[type="checkbox"] {
+            width: 24px; height: 24px; flex-shrink: 0; cursor: pointer;
+            accent-color: var(--green); margin: 0;
+        }
+        .item label { flex: 1; cursor: pointer; font-size: 16px; line-height: 1.35; }
+        .item.checked { background: #effaf1; }
+        .item.checked label { text-decoration: line-through; color: var(--muted); }
+
+        /* Add-item card */
+        .add-card { background: #fff; border-radius: 16px; padding: 16px; margin: 4px 0 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+        .add-card h3 { margin: 0 0 12px; color: var(--brand); font-size: 16px; }
+        .add-card input[type="text"] {
+            width: 100%; padding: 12px 14px; margin-bottom: 10px; border: 2px solid #e2e5ee;
+            border-radius: 10px; font-size: 16px; outline: none; transition: border-color 0.15s ease;
+        }
+        .add-card input[type="text"]:focus { border-color: var(--brand); }
+        .btn-add {
+            width: 100%; padding: 13px; background: var(--brand); color: #fff; border: none;
+            border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;
+        }
+        .btn-add:active { transform: scale(0.99); }
+
+        /* Done button */
+        .btn-done {
+            width: calc(100% - 28px); max-width: 572px; position: fixed;
+            bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%;
+            transform: translateX(-50%); padding: 16px; color: #fff; border: none; border-radius: 14px;
+            font-size: 18px; font-weight: 700; cursor: pointer; z-index: 20;
+            background: linear-gradient(135deg, #2bbf63, var(--green));
+            box-shadow: 0 6px 18px rgba(37,211,102,0.45);
+        }
+        .btn-done:active { transform: translateX(-50%) scale(0.99); }
+
+        .back { text-align: center; margin: 18px 0; }
+        .back a { color: var(--brand); text-decoration: none; font-size: 15px; font-weight: 600; }
     </style>
 </head>
 <body>
-    <div style="text-align: center; margin: 15px 0;">
-        <img src="family-logo.png" alt="Family Logo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+    <div class="app-header">
+        <img src="family-logo.png" alt="Family Logo">
+        <h1>🛒 Costco Ancaster</h1>
+        <div class="date" id="date"></div>
     </div>
-    
-    <h1>🛒 Costco Ancaster</h1>
-    <div class="date" id="date"></div>
-    <div class="counter" id="counter"></div>
+
+    <div class="status-card">
+        <div class="counter" id="counter"></div>
+        <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    </div>
+
     <div id="list"></div>
-    
-    <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px;">
-        <h3 style="margin: 0 0 10px 0; color: #667eea;">Add Item / Adicionar Item</h3>
-        <input type="text" id="custom-item" placeholder="Enter item name / Nome do item" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
-        <button onclick="addCustomItem()" style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; margin-bottom: 10px;">➕ Add to List / Adicionar à Lista</button>
+
+    <div class="add-card">
+        <h3>➕ Add Item / Adicionar Item</h3>
+        <input type="text" id="custom-item" placeholder="Enter item name / Nome do item">
+        <button class="btn-add" onclick="addCustomItem()">➕ Add to List / Adicionar à Lista</button>
     </div>
-    
-    <button onclick="doneShoppingPrompt()" style="width: calc(100% - 40px); max-width: 560px; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); padding: 15px; background: #25D366; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">✅ Done Shopping / Compras Concluídas</button>
-    
+
+    <button class="btn-done" onclick="doneShoppingPrompt()">✅ Done Shopping / Compras Concluídas</button>
+
     <div class="back">
         <a href="index.html">← Back to main list / Voltar à lista principal</a>
     </div>
@@ -86,7 +193,14 @@
         var quantities = params.get('qtys') ? JSON.parse(decodeURIComponent(params.get('qtys'))) : {};
         var customItemsFromUrl = params.get('custom') ? JSON.parse(decodeURIComponent(params.get('custom'))) : [];
         var lang = params.get('lang') || 'en';
-        
+
+        // Store sections, in the same order as the main list (= the walking route through Costco Ancaster)
+        var categoryNames = {
+            en: ['Protein Bars & Nuts','Bakery','Meat & Deli','Fruits & Vegetables','Cheese','Fresh Vegetables','Milk & Eggs','Cleaning & Paper','Snacks','Frozen','Oils','Canned','Spices','Bathroom','Vitamins','Kids Items','Pasta & Grains','Beverages','Sweets'],
+            pt: ['Barras e Castanhas','Padaria','Carnes','Frutas e Vegetais','Queijos','Vegetais Frescos','Leite e Ovos','Limpeza e Papel','Lanches','Congelados','Óleos','Enlatados','Temperos','Higiene','Vitaminas','Itens Infantis','Massas e Grãos','Bebidas','Doces']
+        };
+        var categoryEmojis = ['🍫','🥖','🥩','🍎','🧀','🥦','🥛','🧻','🍿','🧊','🫒','🥫','🧂','🚿','💊','🧸','🍝','☕','🍰'];
+
         var today = new Date();
         var day = String(today.getDate()).padStart(2, '0');
         var month = String(today.getMonth() + 1).padStart(2, '0');
@@ -100,7 +214,7 @@
         var itemEmojis = {
             'Work Bars': '🍫', 'Barrinhas Trabalho': '🍫',
             'Kirkland Protein Bar': '💪', 'Barra Proteína Kirkland': '💪',
-            'Chicken Thighs': '�', 'Coxas Frango': '🍗',
+            'Chicken Thighs': '🍗', 'Coxas Frango': '🍗',
             'Ground Beef': '🥩', 'Carne Moída': '🥩',
             'Tilapia': '🐟', 'Tilápia': '🐟',
             'Fiber Bars': '🍫', 'Barra cereal': '🍫',
@@ -227,23 +341,79 @@
             return '';
         }
         
+        // Group items into store-section "stops", preserving the route order from the URL
+        var names = categoryNames[lang] || categoryNames.en;
+        var sectionEls = {};        // catIdx -> { wrap, body, header, total }
+
+        function getCatIdx(id) {
+            var parts = id.split('-');           // lang-CATEGORY-ITEM
+            return parts.length >= 3 ? parseInt(parts[1], 10) : NaN;
+        }
+
+        function ensureSection(catIdx) {
+            if (sectionEls[catIdx]) return sectionEls[catIdx];
+            var wrap = document.createElement('div');
+            wrap.className = 'section';
+            var header = document.createElement('div');
+            header.className = 'section-header';
+            var emoji = !isNaN(catIdx) && categoryEmojis[catIdx] ? categoryEmojis[catIdx] : '🛒';
+            var title = !isNaN(catIdx) && names[catIdx] ? names[catIdx] : (lang === 'pt' ? 'Outros' : 'Other');
+            header.innerHTML = '<span class="sec-emoji">' + emoji + '</span><span>' + title + '</span><span class="sec-count"></span>';
+            var body = document.createElement('div');
+            wrap.appendChild(header);
+            wrap.appendChild(body);
+            listDiv.appendChild(wrap);
+            sectionEls[catIdx] = { wrap: wrap, body: body, header: header, total: 0 };
+            return sectionEls[catIdx];
+        }
+
+        function updateSection(catIdx) {
+            var sec = sectionEls[catIdx];
+            if (!sec) return;
+            var done = sec.body.querySelectorAll('input:checked').length;
+            sec.header.querySelector('.sec-count').textContent = done + '/' + sec.total;
+            sec.wrap.className = (done === sec.total && sec.total > 0) ? 'section done' : 'section';
+        }
+
         itemIds.forEach(function(id) {
+            var catIdx = getCatIdx(id);
+            var sec = ensureSection(catIdx);
+            sec.total++;
+
             var itemName = itemMap[id] || id;
             var emoji = getItemEmoji(itemName);
             var qty = quantities[id] || '1';
             var itemDiv = document.createElement('div');
             itemDiv.className = 'item';
             itemDiv.innerHTML = '<input type="checkbox" id="' + id + '"><label for="' + id + '">' + emoji + itemName + ' (x' + qty + ')</label>';
-            listDiv.appendChild(itemDiv);
-            
+            sec.body.appendChild(itemDiv);
+
             var checkbox = itemDiv.querySelector('input');
             checkbox.addEventListener('change', function() {
                 itemDiv.className = this.checked ? 'item checked' : 'item';
                 checked = document.querySelectorAll('input:checked').length;
+                updateSection(catIdx);
                 updateCounter();
             });
+            updateSection(catIdx);
         });
         
+        // Custom / extra items live in their own section at the end of the route
+        var customSectionBody = null;
+        function getCustomSectionBody() {
+            if (customSectionBody) return customSectionBody;
+            var wrap = document.createElement('div');
+            wrap.className = 'section';
+            var header = document.createElement('div');
+            header.className = 'section-header';
+            header.innerHTML = '<span>➕</span><span>' + (lang === 'pt' ? 'Itens Adicionados' : 'Added Items') + '</span>';
+            customSectionBody = document.createElement('div');
+            wrap.appendChild(header);
+            wrap.appendChild(customSectionBody);
+            listDiv.appendChild(wrap);
+            return customSectionBody;
+        }
+
         customItemsFromUrl.forEach(function(itemName, index) {
             var customId = 'pending-' + index;
             var itemDiv = document.createElement('div');
@@ -252,8 +422,8 @@
             itemDiv.innerHTML = '<input type="checkbox" id="' + customId + '" checked><label for="' + customId + '">❓ ' + itemName + ' <span style="font-size: 11px; color: #f57c00;">(PENDING APPROVAL)</span></label>' +
                 '<button onclick="approveCustomItem(\'' + customId + '\', \'' + itemName + '\', false)" style="padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 3px; font-size: 12px; margin-left: 5px;">✓ Add to Main</button>' +
                 '<button onclick="approveCustomItem(\'' + customId + '\', \'' + itemName + '\', true)" style="padding: 4px 8px; background: #f57c00; color: white; border: none; border-radius: 3px; font-size: 12px; margin-left: 5px;">#OneTime</button>';
-            listDiv.appendChild(itemDiv);
-            
+            getCustomSectionBody().appendChild(itemDiv);
+
             var checkbox = itemDiv.querySelector('input');
             checkbox.addEventListener('change', function() {
                 itemDiv.style.background = this.checked ? '#fff9e6' : '#fff';
@@ -264,10 +434,12 @@
         function updateCounter() {
             checked = document.querySelectorAll('input:checked').length;
             var remaining = total - checked;
-            var text = lang === 'en' 
-                ? remaining + ' remaining of ' + total + ' items'
-                : remaining + ' restantes de ' + total + ' itens';
-            document.getElementById('counter').textContent = text;
+            var text = lang === 'en'
+                ? '<b>' + remaining + '</b> remaining of ' + total + ' items'
+                : '<b>' + remaining + '</b> restantes de ' + total + ' itens';
+            document.getElementById('counter').innerHTML = text;
+            var pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+            document.getElementById('progress-bar').style.width = pct + '%';
         }
         
         var customItems = [];
@@ -314,7 +486,7 @@
             itemDiv.className = 'item';
             itemDiv.style.background = '#fff9e6';
             itemDiv.innerHTML = '<input type="checkbox" id="' + customId + '"><label for="' + customId + '">' + itemName + (addToMain ? '' : ' #onetimeonly') + '</label>';
-            document.getElementById('list').appendChild(itemDiv);
+            getCustomSectionBody().appendChild(itemDiv);
             
             var checkbox = itemDiv.querySelector('input');
             checkbox.addEventListener('change', function() {
