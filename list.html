@@ -1,617 +1,256 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#5b6ef5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Costco List">
     <title>Costco Shopping List</title>
-    <style>
-        :root {
-            --brand: #667eea;
-            --brand-2: #764ba2;
-            --green: #25D366;
-            --ink: #2b2f38;
-            --muted: #7a8190;
-            --bg: #eef0f6;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html { -webkit-text-size-adjust: 100%; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            max-width: 600px; margin: 0 auto; color: var(--ink); background: var(--bg);
-            /* keep content clear of the iPhone notch sides and the fixed Done button + home indicator */
-            padding:
-                0
-                calc(14px + env(safe-area-inset-right))
-                calc(150px + env(safe-area-inset-bottom))
-                calc(14px + env(safe-area-inset-left));
-        }
-
-        /* App header */
-        .app-header {
-            margin: 0 calc(-14px - env(safe-area-inset-right)) 14px calc(-14px - env(safe-area-inset-left));
-            padding: calc(18px + env(safe-area-inset-top)) 16px 20px;
-            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
-            color: #fff; text-align: center;
-            border-radius: 0 0 22px 22px; box-shadow: 0 6px 18px rgba(102,126,234,0.35);
-        }
-        .app-header img {
-            width: 58px; height: 58px; border-radius: 50%; object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.65); box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        }
-        h1 { font-size: 22px; margin: 10px 0 2px; color: #fff; letter-spacing: 0.3px; }
-        .date { font-size: 13px; color: rgba(255,255,255,0.9); margin: 0; }
-
-        /* Status / progress card */
-        .status-card {
-            background: #fff; border-radius: 16px; padding: 14px 16px; margin-bottom: 16px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-        }
-        .counter { text-align: center; font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
-        .counter b { color: var(--brand); }
-        .progress-wrap { height: 12px; background: #e7e9f0; border-radius: 10px; overflow: hidden; }
-        .progress-bar {
-            height: 100%; width: 0;
-            background: linear-gradient(90deg, #34d977, var(--green));
-            border-radius: 10px; transition: width 0.35s ease;
-        }
-
-        /* Sections */
-        .section {
-            background: #fff; border-radius: 16px; margin: 0 0 16px; overflow: hidden;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-        }
-        .section-header {
-            display: flex; align-items: center; gap: 10px; padding: 13px 16px;
-            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
-            color: #fff; font-size: 16px; font-weight: 700;
-            position: sticky; top: 0; z-index: 5;
-        }
-        .section-header .sec-emoji { font-size: 19px; line-height: 1; }
-        .section-header .sec-count {
-            margin-left: auto; font-size: 13px; font-weight: 600;
-            background: rgba(255,255,255,0.25); padding: 3px 11px; border-radius: 20px; min-width: 42px; text-align: center;
-        }
-        .section.done .section-header { background: linear-gradient(135deg, #2bbf63, var(--green)); }
-
-        /* Items */
-        .item {
-            padding: 14px 16px; background: #fff; border-bottom: 1px solid #eef0f4;
-            display: flex; align-items: center; gap: 14px; transition: background 0.15s ease;
-        }
-        .item:last-child { border-bottom: none; }
-        .item input[type="checkbox"] {
-            width: 24px; height: 24px; flex-shrink: 0; cursor: pointer;
-            accent-color: var(--green); margin: 0;
-        }
-        .item label { flex: 1; cursor: pointer; font-size: 16px; line-height: 1.35; }
-        .item.checked { background: #effaf1; }
-        .item.checked label { text-decoration: line-through; color: var(--muted); }
-
-        /* Add-item card */
-        .add-card { background: #fff; border-radius: 16px; padding: 16px; margin: 4px 0 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
-        .add-card h3 { margin: 0 0 12px; color: var(--brand); font-size: 16px; }
-        .add-card input[type="text"] {
-            width: 100%; padding: 12px 14px; margin-bottom: 10px; border: 2px solid #e2e5ee;
-            border-radius: 10px; font-size: 16px; outline: none; transition: border-color 0.15s ease;
-        }
-        .add-card input[type="text"]:focus { border-color: var(--brand); }
-        .btn-add {
-            width: 100%; padding: 13px; background: var(--brand); color: #fff; border: none;
-            border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;
-        }
-        .btn-add:active { transform: scale(0.99); }
-
-        /* Done button */
-        .btn-done {
-            width: calc(100% - 28px); max-width: 572px; position: fixed;
-            bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%;
-            transform: translateX(-50%); padding: 16px; color: #fff; border: none; border-radius: 14px;
-            font-size: 18px; font-weight: 700; cursor: pointer; z-index: 20;
-            background: linear-gradient(135deg, #2bbf63, var(--green));
-            box-shadow: 0 6px 18px rgba(37,211,102,0.45);
-        }
-        .btn-done:active { transform: translateX(-50%) scale(0.99); }
-
-        .back { text-align: center; margin: 18px 0; }
-        .back a { color: var(--brand); text-decoration: none; font-size: 15px; font-weight: 600; }
-    </style>
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
-<body>
+<body class="has-bottom-bar">
     <div class="app-header">
-        <img src="family-logo.png" alt="Family Logo">
+        <img class="logo" src="family-logo.png" alt="Family Logo">
         <h1>🛒 Costco Ancaster</h1>
-        <div class="date" id="date"></div>
+        <p class="subtitle" id="subtitle">Shopping list</p>
     </div>
 
-    <div class="status-card">
+    <div class="card">
         <div class="counter" id="counter"></div>
         <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
     </div>
 
     <div id="list"></div>
 
-    <div class="add-card">
-        <h3>➕ Add Item / Adicionar Item</h3>
-        <input type="text" id="custom-item" placeholder="Enter item name / Nome do item">
-        <button class="btn-add" onclick="addCustomItem()">➕ Add to List / Adicionar à Lista</button>
+    <div class="card add-card">
+        <h3 id="add-title">➕ Add Item</h3>
+        <div class="row">
+            <input type="text" class="field" id="custom-item" placeholder="Enter item name">
+            <button class="btn-add" onclick="addCustomItem()">Add</button>
+        </div>
     </div>
 
-    <button class="btn-done" onclick="doneShoppingPrompt()">✅ Done Shopping / Compras Concluídas</button>
+    <div class="back"><a href="index.html" id="back-link">← Back to main list</a></div>
 
-    <div class="back">
-        <a href="index.html">← Back to main list / Voltar à lista principal</a>
+    <div class="bottom-bar">
+        <button class="btn btn-green" onclick="doneShopping()" id="done-btn">✅ Done Shopping</button>
     </div>
 
+    <script src="data.js?v=2"></script>
     <script>
-        var itemMap = {
-            'en-0-0': 'Work Bars', 'en-0-1': 'Fiber Bars (Chocolate)', 'en-0-2': 'Rice Krispies Bars', 'en-0-3': 'Kirkland Protein Bar', 'en-0-4': 'Pumpkin Seeds', 'en-0-5': 'Cashews', 'en-0-6': 'Raisins', 'en-0-7': 'Sesame Seeds',
-            'en-1-0': "Cake", 'en-1-1': 'Ginger Cookies', 'en-1-2': 'Small Oat Muffins', 'en-1-3': 'Hot Dog Buns', 'en-1-4': 'Whole Wheat Tortillas', 'en-1-5': "Sandwich Bread", 'en-1-6': "Texas Bread (2 packs)", 'en-1-7': 'Frozen Croissants', 'en-1-8': 'Frozen Breads',
-            'en-2-0': 'Smoked Turkey Breast', 'en-2-1': 'Bacon', 'en-2-2': 'Chicken Thighs', 'en-2-3': 'Ground Beef', 'en-2-4': 'Tilapia',
-            'en-3-0': 'Lemon', 'en-3-1': 'Apples', 'en-3-2': 'Bananas', 'en-3-3': 'Tangerines', 'en-3-4': 'Papaya', 'en-3-5': 'Prunes', 'en-3-6': 'Yellow Potatoes (8)', 'en-3-7': 'Sweet Potatoes (6)', 'en-3-8': 'Carrots (4)', 'en-3-9': 'Beets (2)', 'en-3-10': 'Pumpkin', 'en-3-11': 'Cassava', 'en-3-12': 'Red Onions (2)', 'en-3-13': 'Corn',
-            'en-4-0': 'Goat Cheese', 'en-4-1': 'Feta Cheese', 'en-4-2': 'Coalho Cheese',
-            'en-5-0': 'Mushrooms', 'en-5-1': 'Cucumber', 'en-5-2': 'Tomatoes', 'en-5-3': 'Cherry Tomatoes', 'en-5-4': 'Bell Peppers', 'en-5-5': 'Broccoli', 'en-5-6': 'Avocado', 'en-5-7': 'Brussels Sprouts', 'en-5-8': 'Asparagus', 'en-5-9': 'Red Cabbage', 'en-5-10': 'Garlic', 'en-5-11': 'Spinach',
-            'en-6-0': 'Milk', 'en-6-1': 'Yogurt', 'en-6-2': 'Greek Yogurt', 'en-6-3': "Kids Yogurt", 'en-6-4': 'Butter', 'en-6-5': 'Ghee', 'en-6-6': 'Coconut Oil', 'en-6-7': 'Heavy Cream', 'en-6-8': 'Eggs (2 packs)', 'en-6-9': 'Sliced Cheese', 'en-6-10': 'Cheese', 'en-6-11': 'Cream Cheese LIGHT', 'en-6-12': 'Grated Cheese', 'en-6-13': 'Hummus',
-            'en-7-0': 'Lysol Wipes', 'en-7-1': 'Toilet Bowl Cleaner', 'en-7-2': 'Clorox Spray', 'en-7-3': 'Windex', 'en-7-4': 'Dawn Dish Soap', 'en-7-5': 'Dish Gloves', 'en-7-6': 'Sponges', 'en-7-7': 'Duster Refills', 'en-7-8': 'Laundry Detergent', 'en-7-9': 'Scent Boosters', 'en-7-10': 'Floor Wipes', 'en-7-11': 'Kitchen Cloth', 'en-7-12': 'Hand Soap', 'en-7-13': 'Aluminum Foil', 'en-7-14': 'Toilet Paper', 'en-7-15': 'Paper Towels', 'en-7-16': 'Plastic Wrap', 'en-7-17': 'White Trash Bags', 'en-7-18': 'Black Trash Bags', 'en-7-19': 'Organic Bags',
-            'en-8-0': 'Que Pasa Chips', 'en-8-1': 'Pringles', 'en-8-2': 'Goldfish', 'en-8-3': 'Red Box Cookies', 'en-8-4': 'Lotus Cookies', 'en-8-5': 'Oreos', 'en-8-6': 'Maria Cookies', 'en-8-7': 'School Cakes',
-            'en-9-0': 'Frozen Corn', 'en-9-1': 'Frozen Fries', 'en-9-2': 'Frozen Strawberries', 'en-9-3': 'Chicken Nuggets', 'en-9-4': 'Cheese Bread', 'en-9-5': 'Pizza',
-            'en-10-0': 'Olive Oil', 'en-10-1': 'Vinegar', 'en-10-2': 'Mayonnaise', 'en-10-3': 'Ketchup', 'en-10-4': 'Mustard', 'en-10-5': 'Tomato Sauce', 'en-10-6': 'Soy Sauce',
-            'en-11-0': 'Canned Tuna',
-            'en-12-0': 'Sea Salt', 'en-12-1': 'Garlic Granulated', 'en-12-2': 'Paprika', 'en-12-3': 'Thyme', 'en-12-4': 'Lemon Pepper', 'en-12-5': 'Ginger', 'en-12-6': 'Turmeric', 'en-12-7': 'Knorr', 'en-12-8': 'Black Pepper', 'en-12-9': 'Oregano', 'en-12-10': 'Cinnamon', 'en-12-11': 'Green Onions', 'en-12-12': 'Fines Herbes',
-            'en-13-0': 'Shampoo', 'en-13-1': 'Conditioner', 'en-13-2': 'Bar Soap', 'en-13-3': 'Body Lotion', 'en-13-4': 'Toothpaste', 'en-13-5': "Kids Toothpaste", 'en-13-6': 'Dental Floss', 'en-13-7': 'Mouthwash', 'en-13-8': 'Wet Wipes', 'en-13-9': 'Sanitary Pads',
-            'en-14-0': 'Vitamin B12', 'en-14-1': 'Magnesium', 'en-14-2': 'Zinc', 'en-14-3': 'Omega-3', 'en-14-4': 'Vitamin D', 'en-14-5': 'Vitamin C', 'en-14-6': "Children's Multivitamin",
-            'en-15-0': 'Farinha Láctea', 'en-15-1': "Kids Cereal", 'en-15-2': 'Apple Juice',
-            'en-16-0': 'Pasta', 'en-16-1': 'Brown Rice', 'en-16-2': 'Quinoa', 'en-16-3': 'White Rice', 'en-16-4': 'Oats', 'en-16-5': 'Flour', 'en-16-6': 'Corn Starch', 'en-16-7': 'Baking Soda', 'en-16-8': 'Baking Powder', 'en-16-9': 'Popcorn', 'en-16-10': 'Corn Couscous', 'en-16-11': 'Tapioca',
-            'en-17-0': 'Coffee', 'en-17-1': 'Decaf Instant Coffee', 'en-17-2': 'Decaf Ground Coffee', 'en-17-3': 'Chamomile Tea', 'en-17-4': 'Orange Juice', 'en-17-5': 'Sparkling Water', 'en-17-6': 'Zero Soda',
-            'en-18-0': 'Cheese Bread', 'en-18-1': 'Ice Cream', 'en-18-2': 'Strawberry Jam', 'en-18-3': 'Pancake Mix', 'en-18-4': 'Maple Syrup', 'en-18-5': 'Dulce de Leche', 'en-18-6': 'Condensed Milk', 'en-18-7': 'Honey', 'en-18-8': 'Granola', 'en-18-9': 'Demerara Sugar', 'en-18-10': 'White Sugar', 'en-18-11': 'Hot Chocolate', 'en-18-12': 'Stevia',
-            'pt-0-0': 'Barrinhas Trabalho', 'pt-0-1': 'Barra cereal chocolate', 'pt-0-2': 'Barrinha Rice Krispies', 'pt-0-3': 'Barra Proteína Kirkland', 'pt-0-4': 'Sementes abóbora', 'pt-0-5': 'Castanhas', 'pt-0-6': 'Uvas passas', 'pt-0-7': 'Gergelim',
-            'pt-1-0': 'Bolo', 'pt-1-1': 'Ginger Cookies', 'pt-1-2': 'Bolinho aveia', 'pt-1-3': 'Pão hot dog', 'pt-1-4': 'Tortillas integral', 'pt-1-5': 'Pão Sanduíche', 'pt-1-6': 'Pão Texas (2 pacotes)', 'pt-1-7': 'Croissant congelados', 'pt-1-8': 'Pães congelados',
-            'pt-2-0': 'Peito Peru defumado', 'pt-2-1': 'Bacon', 'pt-2-2': 'Coxas Frango', 'pt-2-3': 'Carne Moída', 'pt-2-4': 'Tilápia',
-            'pt-3-0': 'Limão', 'pt-3-1': 'Maçã', 'pt-3-2': 'Banana', 'pt-3-3': 'Tangerina', 'pt-3-4': 'Mamão', 'pt-3-5': 'Ameixas', 'pt-3-6': 'Batata amarela (8)', 'pt-3-7': 'Batata doce (6)', 'pt-3-8': 'Cenoura (4)', 'pt-3-9': 'Beterraba (2)', 'pt-3-10': 'Jerimum', 'pt-3-11': 'Macaxeira', 'pt-3-12': 'Cebola roxa (2)', 'pt-3-13': 'Milho',
-            'pt-4-0': 'Queijo cabra', 'pt-4-1': 'Queijo fetta', 'pt-4-2': 'Queijo coalho',
-            'pt-5-0': 'Cogumelos', 'pt-5-1': 'Pepino', 'pt-5-2': 'Tomates', 'pt-5-3': 'Tomates cerejas', 'pt-5-4': 'Pimentão', 'pt-5-5': 'Brócolis', 'pt-5-6': 'Abacate', 'pt-5-7': 'Couve Bruxelas', 'pt-5-8': 'Aspargos', 'pt-5-9': 'Couve roxa', 'pt-5-10': 'Alho', 'pt-5-11': 'Espinafre',
-            'pt-6-0': 'Leite', 'pt-6-1': 'Iogurte', 'pt-6-2': 'Iogurte grego', 'pt-6-3': 'Iogurte Infantil', 'pt-6-4': 'Manteiga', 'pt-6-5': 'Manteiga terra', 'pt-6-6': 'Óleo coco', 'pt-6-7': 'Creme leite', 'pt-6-8': 'Ovos (2 pacotes)', 'pt-6-9': 'Queijo fatias', 'pt-6-10': 'Queijo', 'pt-6-11': 'Cream cheese LIGHT', 'pt-6-12': 'Queijo ralado', 'pt-6-13': 'Hummus',
-            'pt-7-0': 'Lenços Lysol', 'pt-7-1': 'Limpador vaso', 'pt-7-2': 'Spray Clorox', 'pt-7-3': 'Windex', 'pt-7-4': 'Detergente dawn', 'pt-7-5': 'Luvas', 'pt-7-6': 'Esponjas', 'pt-7-7': 'Refil espanador', 'pt-7-8': 'Sabão roupas', 'pt-7-9': 'Pedrinhas cheirosas', 'pt-7-10': 'Lenços chão', 'pt-7-11': 'Paninho pia', 'pt-7-12': 'Sabonete líquido', 'pt-7-13': 'Papel alumínio', 'pt-7-14': 'Papel higiênico', 'pt-7-15': 'Papel toalha', 'pt-7-16': 'Papel filme', 'pt-7-17': 'Sacos brancos', 'pt-7-18': 'Sacos pretos', 'pt-7-19': 'Sacos orgânicos',
-            'pt-8-0': 'Que Pasa Chips', 'pt-8-1': 'Pringles', 'pt-8-2': 'Goldfish', 'pt-8-3': 'Biscoito vermelho', 'pt-8-4': 'Biscoito Lotus', 'pt-8-5': 'Oreo', 'pt-8-6': 'Bolacha Maria', 'pt-8-7': 'Bolinho escola',
-            'pt-9-0': 'Milho congelado', 'pt-9-1': 'Batata frita', 'pt-9-2': 'Morangos', 'pt-9-3': 'Nuggets', 'pt-9-4': 'Pão queijo', 'pt-9-5': 'Pizza calabresa',
-            'pt-10-0': 'Azeite', 'pt-10-1': 'Vinagre', 'pt-10-2': 'Maionese', 'pt-10-3': 'Ketchup', 'pt-10-4': 'Mostarda', 'pt-10-5': 'Molho tomate', 'pt-10-6': 'Shoyu',
-            'pt-11-0': 'Atum lata',
-            'pt-12-0': 'Sal marinho', 'pt-12-1': 'Alho granulado', 'pt-12-2': 'Páprica', 'pt-12-3': 'Tomilho', 'pt-12-4': 'Lemon Pepper', 'pt-12-5': 'Gengibre pó', 'pt-12-6': 'Cúrcuma', 'pt-12-7': 'Knorr', 'pt-12-8': 'Pimenta reino', 'pt-12-9': 'Orégano', 'pt-12-10': 'Canela', 'pt-12-11': 'Cebolinha', 'pt-12-12': 'Ervas finas',
-            'pt-13-0': 'Shampoo', 'pt-13-1': 'Condicionador', 'pt-13-2': 'Sabonetes', 'pt-13-3': 'Hidratante', 'pt-13-4': 'Pasta dentes', 'pt-13-5': 'Pasta Infantil', 'pt-13-6': 'Fio dental', 'pt-13-7': 'Enxaguante', 'pt-13-8': 'Lenço umedecido', 'pt-13-9': 'Absorvente',
-            'pt-14-0': 'Vitamina B12', 'pt-14-1': 'Magnésio', 'pt-14-2': 'Zinco', 'pt-14-3': 'Ômega', 'pt-14-4': 'Vitamina D', 'pt-14-5': 'Vitamina C', 'pt-14-6': 'Polivitamínico infantil',
-            'pt-15-0': 'Farinha Láctea', 'pt-15-1': 'Cereal Infantil', 'pt-15-2': 'Suco maçã escola',
-            'pt-16-0': 'Macarrão', 'pt-16-1': 'Arroz integral', 'pt-16-2': 'Quinoa', 'pt-16-3': 'Arroz branco', 'pt-16-4': 'Aveia', 'pt-16-5': 'Farinha trigo', 'pt-16-6': 'Amido milho', 'pt-16-7': 'Bicarbonato', 'pt-16-8': 'Fermento', 'pt-16-9': 'Pipoca', 'pt-16-10': 'Cuscuz', 'pt-16-11': 'Tapioca',
-            'pt-17-0': 'Café', 'pt-17-1': 'Café descafeinado', 'pt-17-2': 'Nescafé descafeinado', 'pt-17-3': 'Chá camomila', 'pt-17-4': 'Suco laranja', 'pt-17-5': 'Água gás', 'pt-17-6': 'Refrigerante ZERO',
-            'pt-18-0': 'Pão queijo', 'pt-18-1': 'Sorvete', 'pt-18-2': 'Geleia morango', 'pt-18-3': 'Panqueca', 'pt-18-4': 'Maple Syrup', 'pt-18-5': 'Doce leite', 'pt-18-6': 'Leite condensado', 'pt-18-7': 'Mel', 'pt-18-8': 'Granola', 'pt-18-9': 'Açúcar demerara', 'pt-18-10': 'Açúcar branco', 'pt-18-11': 'Chocolate quente', 'pt-18-12': 'Stevia'
-        };
-
+    (function () {
+        'use strict';
         var params = new URLSearchParams(window.location.search);
-        var itemIds = params.get('items') ? params.get('items').split(',') : [];
-        var quantities = params.get('qtys') ? JSON.parse(decodeURIComponent(params.get('qtys'))) : {};
-        var customItemsFromUrl = params.get('custom') ? JSON.parse(decodeURIComponent(params.get('custom'))) : [];
-        var lang = params.get('lang') || 'en';
+        var lang = params.get('l') || params.get('lang') || 'en';
+        document.documentElement.lang = lang;
 
-        // Store sections, in the same order as the main list (= the walking route through Costco Ancaster)
-        var categoryNames = {
-            en: ['Protein Bars & Nuts','Bakery','Meat & Deli','Fruits & Vegetables','Cheese','Fresh Vegetables','Milk & Eggs','Cleaning & Paper','Snacks','Frozen','Oils','Canned','Spices','Bathroom','Vitamins','Kids Items','Pasta & Grains','Beverages','Sweets'],
-            pt: ['Barras e Castanhas','Padaria','Carnes','Frutas e Vegetais','Queijos','Vegetais Frescos','Leite e Ovos','Limpeza e Papel','Lanches','Congelados','Óleos','Enlatados','Temperos','Higiene','Vitaminas','Itens Infantis','Massas e Grãos','Bebidas','Doces']
-        };
-        var categoryEmojis = ['🍫','🥖','🥩','🍎','🧀','🥦','🥛','🧻','🍿','🧊','🫒','🥫','🧂','🚿','💊','🧸','🍝','☕','🍰'];
+        var T = {
+            en: { subtitle: 'Shopping list', add: '➕ Add Item', addPh: 'Enter item name', addBtn: 'Add',
+                  back: '← Back to main list', done: '✅ Done Shopping',
+                  remaining: function (r, t) { return '<b>' + r + '</b> of ' + t + ' left'; },
+                  allDone: '🎉 All items collected!', added: '➕ Added Items', pending: 'added',
+                  emptyName: 'Please enter an item name', cost: 'Enter total amount paid (optional):',
+                  share: 'Share this shopping summary with the family?', found: 'Found', missing: 'Missing',
+                  total: 'Total', notProvided: 'Not provided', copied: '✅ Summary copied — paste it in WhatsApp or email.',
+                  savedLocal: '✅ Summary saved on this device.', returnQ: 'Return to main list?', empty: 'This list is empty.' },
+            pt: { subtitle: 'Lista de compras', add: '➕ Adicionar Item', addPh: 'Nome do item', addBtn: 'Add',
+                  back: '← Voltar à lista principal', done: '✅ Compras Concluídas',
+                  remaining: function (r, t) { return '<b>' + r + '</b> de ' + t + ' restantes'; },
+                  allDone: '🎉 Todos os itens coletados!', added: '➕ Itens Adicionados', pending: 'adicionado',
+                  emptyName: 'Digite o nome do item', cost: 'Valor total pago (opcional):',
+                  share: 'Compartilhar este resumo com a família?', found: 'Encontrados', missing: 'Faltaram',
+                  total: 'Total', notProvided: 'Não informado', copied: '✅ Resumo copiado — cole no WhatsApp ou email.',
+                  savedLocal: '✅ Resumo salvo neste dispositivo.', returnQ: 'Voltar à lista principal?', empty: 'Esta lista está vazia.' }
+        }[lang] || null;
+        var t = T || { subtitle: '', add: '➕ Add Item', addPh: 'Enter item name', addBtn: 'Add', back: '← Back', done: '✅ Done',
+            remaining: function (r, x) { return r + '/' + x; }, allDone: 'Done', added: 'Added', pending: 'added',
+            emptyName: '', cost: '', share: '', found: 'Found', missing: 'Missing', total: 'Total', notProvided: '-',
+            copied: '', savedLocal: '', returnQ: '', empty: 'Empty.' };
 
-        var today = new Date();
-        var day = String(today.getDate()).padStart(2, '0');
-        var month = String(today.getMonth() + 1).padStart(2, '0');
-        var year = today.getFullYear();
-        document.getElementById('date').textContent = day + '/' + month + '/' + year;
-        
-        var listDiv = document.getElementById('list');
-        var total = itemIds.length + customItemsFromUrl.length;
-        var checked = 0;
-        
-        var itemEmojis = {
-            'Work Bars': '🍫', 'Barrinhas Trabalho': '🍫',
-            'Kirkland Protein Bar': '💪', 'Barra Proteína Kirkland': '💪',
-            'Chicken Thighs': '🍗', 'Coxas Frango': '🍗',
-            'Ground Beef': '🥩', 'Carne Moída': '🥩',
-            'Tilapia': '🐟', 'Tilápia': '🐟',
-            'Fiber Bars': '🍫', 'Barra cereal': '🍫',
-            'Bars': '🍫', 'Rice Krispies': '🍫',
-            'Seeds': '🌻', 'Sementes': '🌻',
-            'Cashews': '🥜', 'Castanhas': '🥜',
-            'Raisins': '🍇', 'Uvas passas': '🍇',
-            'Sesame': '🌰', 'Gergelim': '🌰',
-            'Cake': '🎂', 'Bolo': '🎂',
-            'Cookies': '🍪', 'Ginger': '🍪',
-            'Muffins': '🧁', 'Bolinho': '🧁',
-            'Bread': '🍞', 'Pão': '🍞',
-            'Hot Dog': '🌭',
-            'Tortillas': '🌮',
-            'Croissant': '🥐',
-            'Turkey': '🦃', 'Peru': '🦃',
-            'Bacon': '🥓',
-            'Lemon': '🍋', 'Limão': '🍋',
-            'Apple': '🍎', 'Maçã': '🍎',
-            'Banana': '🍌',
-            'Tangerine': '🍊', 'Tangerina': '🍊',
-            'Papaya': '🍈', 'Mamão': '🍈',
-            'Prune': '🫐', 'Ameixa': '🫐',
-            'Potato': '🥔', 'Batata': '🥔',
-            'Carrot': '🥕', 'Cenoura': '🥕',
-            'Beet': '🫐', 'Beterraba': '🫐',
-            'Pumpkin': '🎃', 'Jerimum': '🎃',
-            'Cassava': '🥔', 'Macaxeira': '🥔',
-            'Onion': '🧅', 'Cebola': '🧅',
-            'Corn': '🌽', 'Milho': '🌽',
-            'Cheese': '🧀', 'Queijo': '🧀',
-            'Mushroom': '🍄', 'Cogumelo': '🍄',
-            'Cucumber': '🥒', 'Pepino': '🥒',
-            'Tomato': '🍅', 'Tomate': '🍅',
-            'Pepper': '🫑', 'Pimentão': '🫑',
-            'Broccoli': '🥦', 'Brócolis': '🥦',
-            'Avocado': '🥑', 'Abacate': '🥑',
-            'Brussels': '🥬', 'Couve Bruxelas': '🥬',
-            'Asparagus': '🌿', 'Aspargo': '🌿',
-            'Cabbage': '🥬', 'Couve': '🥬',
-            'Garlic': '🧄', 'Alho': '🧄',
-            'Spinach': '🥬', 'Espinafre': '🥬',
-            'Milk': '🥛', 'Leite': '🥛',
-            'Yogurt': '🥛', 'Iogurte': '🥛',
-            'Butter': '🧈', 'Manteiga': '🧈',
-            'Ghee': '🧈',
-            'Coconut Oil': '🥥', 'Óleo coco': '🥥',
-            'Cream': '🥛', 'Creme': '🥛',
-            'Egg': '🥚', 'Ovo': '🥚',
-            'Hummus': '🫘',
-            'Wipe': '🧻', 'Lenço': '🧻',
-            'Soap': '🧼', 'Sabonete': '🧼', 'Sabão': '🧼',
-            'Cleaner': '🧹', 'Limpador': '🧹',
-            'Spray': '💧',
-            'Glove': '🧤', 'Luva': '🧤',
-            'Sponge': '🧽', 'Esponja': '🧽',
-            'Detergent': '🧴', 'Detergente': '🧴',
-            'Paper': '🧻', 'Papel': '🧻',
-            'Foil': '📋', 'Alumínio': '📋',
-            'Bag': '🛍️', 'Saco': '🛍️',
-            'Chip': '🍿',
-            'Pringles': '🥔',
-            'Goldfish': '🐟',
-            'Oreo': '🍪',
-            'Pizza': '🍕',
-            'Strawberr': '🍓', 'Morango': '🍓',
-            'Nugget': '🍗',
-            'Fries': '🍟', 'Batata frita': '🍟',
-            'Olive Oil': '🫒', 'Azeite': '🫒',
-            'Vinegar': '🧪', 'Vinagre': '🧪',
-            'Mayonnaise': '🥫', 'Maionese': '🥫',
-            'Ketchup': '🍅',
-            'Mustard': '🌭', 'Mostarda': '🌭',
-            'Soy': '🥢', 'Shoyu': '🥢',
-            'Tuna': '🐟', 'Atum': '🐟',
-            'Salt': '🧂', 'Sal': '🧂',
-            'Pepper': '🌶️', 'Pimenta': '🌶️',
-            'Paprika': '🌶️', 'Páprica': '🌶️',
-            'Ginger': '🫚', 'Gengibre': '🫚',
-            'Cinnamon': '🥘', 'Canela': '🥘',
-            'Oregano': '🌿', 'Orégano': '🌿',
-            'Shampoo': '🧴',
-            'Conditioner': '🧴', 'Condicionador': '🧴',
-            'Lotion': '🧴', 'Hidratante': '🧴',
-            'Toothpaste': '🪥', 'Pasta': '🪥',
-            'Floss': '🦷', 'Fio dental': '🦷',
-            'Mouthwash': '🧪', 'Enxaguante': '🧪',
-            'Pad': '🩹', 'Absorvente': '🩹',
-            'Vitamin': '💊', 'Vitamina': '💊',
-            'Magnesium': '💊', 'Magnésio': '💊',
-            'Zinc': '💊', 'Zinco': '💊',
-            'Omega': '💊', 'Ômega': '💊',
-            'Juice': '🧃', 'Suco': '🧃',
-            'Cereal': '🥣',
-            'Pasta': '🍝', 'Macarrão': '🍝',
-            'Rice': '🍚', 'Arroz': '🍚',
-            'Quinoa': '🌾',
-            'Oat': '🌾', 'Aveia': '🌾',
-            'Flour': '🌾', 'Farinha': '🌾',
-            'Popcorn': '🍿', 'Pipoca': '🍿',
-            'Tapioca': '🥘',
-            'Coffee': '☕', 'Café': '☕',
-            'Tea': '🍵', 'Chá': '🍵',
-            'Water': '💧', 'Água': '💧',
-            'Soda': '🥤', 'Refrigerante': '🥤',
-            'Ice Cream': '🍨', 'Sorvete': '🍨',
-            'Jam': '🍓', 'Geleia': '🍓',
-            'Pancake': '🥞', 'Panqueca': '🥞',
-            'Syrup': '🍯', 'Maple': '🍯',
-            'Dulce': '🍯', 'Doce': '🍯',
-            'Honey': '🍯', 'Mel': '🍯',
-            'Granola': '🥣',
-            'Sugar': '🍬', 'Açúcar': '🍬',
-            'Chocolate': '🍫',
-            'Stevia': '🌿'
-        };
-        
-        function getItemEmoji(itemName) {
-            for (var key in itemEmojis) {
-                if (itemName.toLowerCase().includes(key.toLowerCase())) {
-                    return itemEmojis[key] + ' ';
-                }
-            }
-            return '';
-        }
-        
-        // Group items into store-section "stops", preserving the route order from the URL
-        var names = categoryNames[lang] || categoryNames.en;
-        var sectionEls = {};        // catIdx -> { wrap, body, header, total }
+        document.getElementById('subtitle').textContent = t.subtitle;
+        document.getElementById('add-title').textContent = t.add;
+        document.getElementById('custom-item').placeholder = t.addPh;
+        document.getElementById('back-link').textContent = t.back;
+        document.getElementById('done-btn').textContent = t.done;
 
-        function getCatIdx(id) {
-            var parts = id.split('-');           // lang-CATEGORY-ITEM
-            return parts.length >= 3 ? parseInt(parts[1], 10) : NaN;
+        /* ---- Resolve selection from the URL --------------------- */
+        var selection = [];   // { cat, item, qty, name, emoji }
+        var code = params.get('d');
+        if (code) {
+            COSTCO.decode(code).forEach(function (d) {
+                selection.push({ cat: d.cat, item: d.item, qty: d.qty, name: COSTCO.name(d, lang), emoji: COSTCO.itemEmoji(COSTCO.name(d, lang)) });
+            });
+        } else if (params.get('items')) {
+            // Backward compatibility with old long links
+            var qtys = params.get('qtys') ? JSON.parse(decodeURIComponent(params.get('qtys'))) : {};
+            params.get('items').split(',').forEach(function (id) {
+                var gi = COSTCO.idToGi(id);
+                if (gi === undefined) return;
+                var f = COSTCO.flat[gi];
+                var nm = COSTCO.name(f, lang);
+                selection.push({ cat: f.cat, item: f.item, qty: parseInt(qtys[id], 10) || 1, name: nm, emoji: COSTCO.itemEmoji(nm) });
+            });
         }
 
-        function ensureSection(catIdx) {
-            if (sectionEls[catIdx]) return sectionEls[catIdx];
-            var wrap = document.createElement('div');
-            wrap.className = 'section';
-            var header = document.createElement('div');
-            header.className = 'section-header';
-            var emoji = !isNaN(catIdx) && categoryEmojis[catIdx] ? categoryEmojis[catIdx] : '🛒';
-            var title = !isNaN(catIdx) && names[catIdx] ? names[catIdx] : (lang === 'pt' ? 'Outros' : 'Other');
-            header.innerHTML = '<span class="sec-emoji">' + emoji + '</span><span>' + title + '</span><span class="sec-count"></span>';
+        // Order by the optimized store route, then by item order within a section
+        selection.sort(function (a, b) {
+            return (COSTCO.routePos(a.cat) - COSTCO.routePos(b.cat)) || (a.item - b.item);
+        });
+
+        // Custom items (free text)
+        var customFromUrl = [];
+        if (params.get('c')) customFromUrl = COSTCO.decodeCustom(params.get('c'));
+        else if (params.get('custom')) { try { customFromUrl = JSON.parse(decodeURIComponent(params.get('custom'))); } catch (e) {} }
+
+        /* ---- Render -------------------------------------------- */
+        var listEl = document.getElementById('list');
+        var total = selection.length + customFromUrl.length;
+        var sections = {};   // cat -> { wrap, body, header, total, stepEl, countEl }
+        var stepCounter = 0;
+        var customItems = [];   // staged custom items {name}
+
+        function makeSection(cat) {
+            if (sections[cat]) return sections[cat];
+            stepCounter++;
+            var wrap = document.createElement('div'); wrap.className = 'section';
+            var header = document.createElement('div'); header.className = 'section-header';
+            header.innerHTML =
+                '<span class="sec-step">' + stepCounter + '</span>' +
+                '<span class="sec-emoji">' + COSTCO.catEmoji(cat) + '</span>' +
+                '<span>' + COSTCO.catName(cat, lang) + '</span>' +
+                '<span class="sec-count"></span>';
             var body = document.createElement('div');
-            wrap.appendChild(header);
-            wrap.appendChild(body);
-            listDiv.appendChild(wrap);
-            sectionEls[catIdx] = { wrap: wrap, body: body, header: header, total: 0 };
-            return sectionEls[catIdx];
+            wrap.appendChild(header); wrap.appendChild(body); listEl.appendChild(wrap);
+            sections[cat] = { wrap: wrap, body: body, header: header, total: 0, countEl: header.querySelector('.sec-count') };
+            return sections[cat];
         }
 
-        function updateSection(catIdx) {
-            var sec = sectionEls[catIdx];
-            if (!sec) return;
-            var done = sec.body.querySelectorAll('input:checked').length;
-            sec.header.querySelector('.sec-count').textContent = done + '/' + sec.total;
-            sec.wrap.className = (done === sec.total && sec.total > 0) ? 'section done' : 'section';
+        function refreshSection(cat) {
+            var s = sections[cat]; if (!s) return;
+            var done = s.body.querySelectorAll('input:checked').length;
+            s.countEl.textContent = done + '/' + s.total;
+            s.wrap.className = (done === s.total && s.total > 0) ? 'section done' : 'section';
         }
 
-        itemIds.forEach(function(id) {
-            var catIdx = getCatIdx(id);
-            var sec = ensureSection(catIdx);
-            sec.total++;
-
-            var itemName = itemMap[id] || id;
-            var emoji = getItemEmoji(itemName);
-            var qty = quantities[id] || '1';
-            var itemDiv = document.createElement('div');
-            itemDiv.className = 'item';
-            itemDiv.innerHTML = '<input type="checkbox" id="' + id + '"><label for="' + id + '">' + emoji + itemName + ' (x' + qty + ')</label>';
-            sec.body.appendChild(itemDiv);
-
-            var checkbox = itemDiv.querySelector('input');
-            checkbox.addEventListener('change', function() {
-                itemDiv.className = this.checked ? 'item checked' : 'item';
-                checked = document.querySelectorAll('input:checked').length;
-                updateSection(catIdx);
-                updateCounter();
-            });
-            updateSection(catIdx);
-        });
-        
-        // Custom / extra items live in their own section at the end of the route
-        var customSectionBody = null;
-        function getCustomSectionBody() {
-            if (customSectionBody) return customSectionBody;
-            var wrap = document.createElement('div');
-            wrap.className = 'section';
-            var header = document.createElement('div');
-            header.className = 'section-header';
-            header.innerHTML = '<span>➕</span><span>' + (lang === 'pt' ? 'Itens Adicionados' : 'Added Items') + '</span>';
-            customSectionBody = document.createElement('div');
-            wrap.appendChild(header);
-            wrap.appendChild(customSectionBody);
-            listDiv.appendChild(wrap);
-            return customSectionBody;
-        }
-
-        customItemsFromUrl.forEach(function(itemName, index) {
-            var customId = 'pending-' + index;
-            var itemDiv = document.createElement('div');
-            itemDiv.className = 'item';
-            itemDiv.style.background = '#fff9e6';
-            itemDiv.innerHTML = '<input type="checkbox" id="' + customId + '" checked><label for="' + customId + '">❓ ' + itemName + ' <span style="font-size: 11px; color: #f57c00;">(PENDING APPROVAL)</span></label>' +
-                '<button onclick="approveCustomItem(\'' + customId + '\', \'' + itemName + '\', false)" style="padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 3px; font-size: 12px; margin-left: 5px;">✓ Add to Main</button>' +
-                '<button onclick="approveCustomItem(\'' + customId + '\', \'' + itemName + '\', true)" style="padding: 4px 8px; background: #f57c00; color: white; border: none; border-radius: 3px; font-size: 12px; margin-left: 5px;">#OneTime</button>';
-            getCustomSectionBody().appendChild(itemDiv);
-
-            var checkbox = itemDiv.querySelector('input');
-            checkbox.addEventListener('change', function() {
-                itemDiv.style.background = this.checked ? '#fff9e6' : '#fff';
-                updateCounter();
-            });
-        });
-        
-        function updateCounter() {
-            checked = document.querySelectorAll('input:checked').length;
+        var checked = 0;
+        function refreshTotals() {
+            checked = document.querySelectorAll('#list .item input:checked').length;
             var remaining = total - checked;
-            var text = lang === 'en'
-                ? '<b>' + remaining + '</b> remaining of ' + total + ' items'
-                : '<b>' + remaining + '</b> restantes de ' + total + ' itens';
-            document.getElementById('counter').innerHTML = text;
+            document.getElementById('counter').innerHTML = remaining > 0 ? t.remaining(remaining, total) : t.allDone;
             var pct = total > 0 ? Math.round((checked / total) * 100) : 0;
             document.getElementById('progress-bar').style.width = pct + '%';
         }
-        
-        var customItems = [];
-        var approvedCustomItems = [];
-        
-        function approveCustomItem(itemId, itemName, oneTimeOnly) {
-            var itemDiv = document.getElementById(itemId).parentElement;
-            itemDiv.style.background = '#e8f5e9';
-            itemDiv.innerHTML = '<input type="checkbox" id="' + itemId + '" checked><label for="' + itemId + '">✅ ' + itemName + (oneTimeOnly ? ' <span style="font-size: 11px; color: #f57c00;">#onetimeonly</span>' : '') + '</label>';
-            
-            approvedCustomItems.push({
-                name: itemName,
-                oneTimeOnly: oneTimeOnly,
-                id: itemId
+
+        function addRow(sec, cat, html, onChange) {
+            var row = document.createElement('div'); row.className = 'item'; row.innerHTML = html;
+            sec.body.appendChild(row);
+            var cb = row.querySelector('input[type="checkbox"]');
+            cb.addEventListener('change', function () {
+                row.classList.toggle('checked', cb.checked);
+                if (cat != null) refreshSection(cat);
+                refreshTotals();
+                if (onChange) onChange();
             });
-            
-            var checkbox = itemDiv.querySelector('input');
-            checkbox.addEventListener('change', function() {
-                itemDiv.className = this.checked ? 'item checked' : 'item';
-                updateCounter();
-            });
-            
-            customItems.push({
-                name: itemName,
-                oneTimeOnly: oneTimeOnly,
-                id: itemId
-            });
+            return row;
         }
-        
-        function addCustomItem() {
+
+        selection.forEach(function (s, idx) {
+            var sec = makeSection(s.cat); sec.total++;
+            var qtyBadge = s.qty > 1 ? ' <span class="qty-pill">×' + s.qty + '</span>' : '';
+            addRow(sec, s.cat,
+                '<input type="checkbox" id="i' + idx + '">' +
+                '<label for="i' + idx + '">' + s.emoji + ' ' + s.name + '</label>' + qtyBadge);
+            refreshSection(s.cat);
+        });
+
+        // Custom items get their own section at the end of the route
+        var customSec = null;
+        function customSection() {
+            if (customSec) return customSec;
+            stepCounter++;
+            var wrap = document.createElement('div'); wrap.className = 'section';
+            wrap.innerHTML = '<div class="section-header"><span class="sec-step">' + stepCounter +
+                '</span><span class="sec-emoji">➕</span><span>' + t.added + '</span></div>';
+            var body = document.createElement('div'); wrap.appendChild(body); listEl.appendChild(wrap);
+            customSec = { body: body };
+            // keep the add card + bottom bar after sections
+            return customSec;
+        }
+
+        customFromUrl.forEach(function (name, i) {
+            var sec = customSection();
+            var row = document.createElement('div'); row.className = 'item pending';
+            row.innerHTML = '<input type="checkbox" id="c' + i + '"><label for="c' + i + '">' +
+                COSTCO.itemEmoji(name) + ' ' + name + ' <span class="qty-pill" style="background:#fde9c8;color:#a86a12">' + t.pending + '</span></label>';
+            sec.body.appendChild(row);
+            var cb = row.querySelector('input');
+            cb.addEventListener('change', function () { row.classList.toggle('checked', cb.checked); refreshTotals(); });
+            customItems.push({ name: name });
+        });
+
+        if (total === 0) listEl.innerHTML = '<div class="empty">' + t.empty + '</div>';
+
+        window.addCustomItem = function () {
             var input = document.getElementById('custom-item');
-            var itemName = input.value.trim();
-            if (!itemName) {
-                alert(lang === 'en' ? 'Please enter an item name' : 'Por favor, digite o nome do item');
-                return;
-            }
-            
-            var addToMain = confirm(lang === 'en' 
-                ? 'Add "' + itemName + '" to main list for future use?\n\nClick OK to add to main list\nClick Cancel for one-time only'
-                : 'Adicionar "' + itemName + '" à lista principal para uso futuro?\n\nClique OK para adicionar à lista principal\nClique Cancelar para uso único');
-            
-            var customId = 'custom-' + Date.now();
-            var itemDiv = document.createElement('div');
-            itemDiv.className = 'item';
-            itemDiv.style.background = '#fff9e6';
-            itemDiv.innerHTML = '<input type="checkbox" id="' + customId + '"><label for="' + customId + '">' + itemName + (addToMain ? '' : ' #onetimeonly') + '</label>';
-            getCustomSectionBody().appendChild(itemDiv);
-            
-            var checkbox = itemDiv.querySelector('input');
-            checkbox.addEventListener('change', function() {
-                itemDiv.className = this.checked ? 'item checked' : 'item';
-                total++;
-                updateCounter();
+            var name = input.value.trim();
+            if (!name) { alert(t.emptyName); return; }
+            var sec = customSection();
+            var id = 'cu' + Date.now();
+            var row = document.createElement('div'); row.className = 'item pending';
+            row.innerHTML = '<input type="checkbox" id="' + id + '"><label for="' + id + '">' +
+                COSTCO.itemEmoji(name) + ' ' + name + '</label>';
+            sec.body.appendChild(row);
+            var cb = row.querySelector('input');
+            cb.addEventListener('change', function () { row.classList.toggle('checked', cb.checked); refreshTotals(); });
+            customItems.push({ name: name });
+            total++; input.value = ''; refreshTotals();
+        };
+
+        window.doneShopping = function () {
+            var found = [], missing = [];
+            document.querySelectorAll('#list .item').forEach(function (row) {
+                var cb = row.querySelector('input[type="checkbox"]');
+                var label = row.querySelector('label').textContent.trim();
+                (cb.checked ? found : missing).push(label);
             });
-            
-            customItems.push({
-                name: itemName,
-                oneTimeOnly: !addToMain,
-                id: customId
-            });
-            
-            input.value = '';
-            total++;
-            updateCounter();
-        }
-        
-        function doneShoppingPrompt() {
-            var allItems = document.querySelectorAll('.item');
-            var found = [];
-            var missing = [];
-            
-            allItems.forEach(function(item) {
-                var checkbox = item.querySelector('input');
-                var label = item.querySelector('label');
-                var itemName = label.textContent;
-                
-                if (checkbox.checked) {
-                    found.push(itemName);
-                } else {
-                    missing.push(itemName);
-                }
-            });
-            
-            var totalCost = prompt(lang === 'en' 
-                ? 'Enter total amount paid (optional):'
-                : 'Digite o valor total pago (opcional):');
-            
-            var logData = {
-                date: new Date().toISOString(),
-                dateFormatted: document.getElementById('date').textContent,
-                lang: lang,
-                totalItems: total,
-                foundItems: found,
-                missingItems: missing,
-                customItems: customItems,
-                totalCost: totalCost || 'Not provided'
-            };
-            
-            // Save to localStorage for this device
-            var logs = JSON.parse(localStorage.getItem('costco_shopping_logs') || '[]');
-            logs.push(logData);
-            localStorage.setItem('costco_shopping_logs', JSON.stringify(logs));
-            
-            // Create shareable summary message
-            var summary = '🛒 Costco Shopping - ' + document.getElementById('date').textContent + '\n\n' +
-                '✅ ' + (lang === 'en' ? 'Found: ' : 'Encontrados: ') + found.length + ' items\n' +
-                '❌ ' + (lang === 'en' ? 'Missing: ' : 'Faltaram: ') + missing.length + ' items\n' +
-                '💰 ' + (lang === 'en' ? 'Total: ' : 'Total: ') + (totalCost ? '$' + totalCost : (lang === 'en' ? 'Not provided' : 'Não informado'));
-            
-            if (missing.length > 0 && missing.length <= 10) {
-                summary += '\n\n' + (lang === 'en' ? '❌ Missing:\n' : '❌ Faltaram:\n') + missing.map(function(item) { return '• ' + item; }).join('\n');
-            } else if (missing.length > 10) {
-                summary += '\n\n' + (lang === 'en' ? '❌ ' + missing.length + ' items were missing' : '❌ ' + missing.length + ' itens faltaram');
+            var cost = prompt(t.cost);
+            var dateStr = new Date().toLocaleDateString(lang === 'pt' ? 'pt-BR' : 'en-CA');
+
+            try {
+                var logs = JSON.parse(localStorage.getItem('costco_shopping_logs') || '[]');
+                logs.push({ date: new Date().toISOString(), dateFormatted: dateStr, lang: lang,
+                    totalItems: total, foundItems: found, missingItems: missing,
+                    customItems: customItems, totalCost: cost || 'Not provided' });
+                localStorage.setItem('costco_shopping_logs', JSON.stringify(logs));
+            } catch (e) {}
+
+            var summary = '🛒 Costco — ' + dateStr + '\n\n' +
+                '✅ ' + t.found + ': ' + found.length + '\n' +
+                '❌ ' + t.missing + ': ' + missing.length + '\n' +
+                '💰 ' + t.total + ': ' + (cost ? '$' + cost : t.notProvided);
+            if (missing.length && missing.length <= 12) {
+                summary += '\n\n❌ ' + t.missing + ':\n' + missing.map(function (m) { return '• ' + m; }).join('\n');
             }
-            
-            if (customItems.length > 0) {
-                summary += '\n\n' + (lang === 'en' ? '➕ Custom items:\n' : '➕ Itens personalizados:\n') + customItems.map(function(item) { return '• ' + item.name; }).join('\n');
-            }
-            
-            // Ask if user wants to share
-            var shareMsg = lang === 'en' 
-                ? 'Shopping complete!\n\nWould you like to share this log with the family?'
-                : 'Compras concluídas!\n\nGostaria de compartilhar este registro com a família?';
-            
-            if (confirm(shareMsg)) {
-                // Try to share via native share API
+
+            if (confirm(t.share)) {
                 if (navigator.share) {
-                    navigator.share({
-                        title: 'Costco Shopping Log',
-                        text: summary
-                    }).catch(function(err) {
-                        // Fallback: copy to clipboard
-                        copyToClipboard(summary);
-                        alert(lang === 'en' 
-                            ? '✅ Log copied to clipboard! Now you can paste it in WhatsApp or email.'
-                            : '✅ Registro copiado! Agora você pode colar no WhatsApp ou email.');
-                    });
-                } else {
-                    // Fallback: copy to clipboard
-                    copyToClipboard(summary);
-                    alert(lang === 'en' 
-                        ? '✅ Log copied to clipboard! Now you can paste it in WhatsApp or email to share with everyone.'
-                        : '✅ Registro copiado! Agora você pode colar no WhatsApp ou email para compartilhar com todos.');
-                }
-            } else {
-                alert(lang === 'en' 
-                    ? '✅ Log saved locally on this device only.'
-                    : '✅ Registro salvo localmente apenas neste dispositivo.');
-            }
-            
-            if (confirm(lang === 'en' ? 'Return to main list?' : 'Voltar à lista principal?')) {
-                window.location.href = 'index.html';
-            }
+                    navigator.share({ title: 'Costco Shopping', text: summary }).catch(function () { copy(summary); alert(t.copied); });
+                } else { copy(summary); alert(t.copied); }
+            } else { alert(t.savedLocal); }
+
+            if (confirm(t.returnQ)) window.location.href = 'index.html';
+        };
+
+        function copy(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); return; }
+            var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta);
         }
-        
-        function copyToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text);
-            } else {
-                // Fallback for older browsers
-                var textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-            }
-        }
-        
-        updateCounter();
+
+        refreshTotals();
+    })();
     </script>
 </body>
 </html>

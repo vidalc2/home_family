@@ -1,0 +1,227 @@
+/* =============================================================
+   Costco Family List — shared design system
+   ============================================================= */
+:root {
+  --brand-1: #5b6ef5;
+  --brand-2: #8b5cf6;
+  --brand-ink: #4b53d6;
+  --green-1: #16b364;
+  --green-2: #0f9d58;
+  --ink: #1c2333;
+  --ink-soft: #51596b;
+  --muted: #8b92a4;
+  --line: #eceef4;
+  --line-soft: #f3f4f9;
+  --bg: #f4f5fa;
+  --card: #ffffff;
+  --warn: #f59e0b;
+  --warn-bg: #fff7e6;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow-sm: 0 1px 2px rgba(20, 25, 50, 0.05), 0 2px 8px rgba(20, 25, 50, 0.05);
+  --shadow-md: 0 6px 22px rgba(33, 41, 92, 0.10);
+  --shadow-brand: 0 10px 26px rgba(91, 110, 245, 0.36);
+  --shadow-green: 0 10px 26px rgba(22, 179, 100, 0.36);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0 auto;
+  max-width: 640px;
+  line-height: 1.45;
+  padding:
+    0
+    calc(16px + env(safe-area-inset-right))
+    calc(24px + env(safe-area-inset-bottom))
+    calc(16px + env(safe-area-inset-left));
+}
+body.has-bottom-bar { padding-bottom: calc(168px + env(safe-area-inset-bottom)); }
+
+/* ---- App header (gradient banner) ---------------------------- */
+.app-header {
+  position: relative;
+  margin: 0 calc(-16px - env(safe-area-inset-right)) 18px calc(-16px - env(safe-area-inset-left));
+  padding: calc(20px + env(safe-area-inset-top)) 20px 26px;
+  background: linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 100%);
+  color: #fff;
+  text-align: center;
+  border-radius: 0 0 26px 26px;
+  box-shadow: var(--shadow-brand);
+}
+.app-header .logo {
+  width: 60px; height: 60px; border-radius: 50%; object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.28);
+}
+.app-header h1 {
+  font-size: 24px; font-weight: 800; letter-spacing: 0.2px; margin: 12px 0 2px; color: #fff;
+}
+.app-header .subtitle { font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.88); margin: 0; }
+.app-header .header-link {
+  display: inline-block; margin-top: 12px; padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.18); border-radius: 999px;
+  color: #fff; text-decoration: none; font-size: 13px; font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+.app-header .header-link:active { background: rgba(255, 255, 255, 0.3); }
+
+/* ---- Cards & sections ---------------------------------------- */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); padding: 16px; margin-bottom: 16px;
+}
+.card h2, .card h3 { margin: 0 0 12px; color: var(--brand-ink); font-size: 16px; font-weight: 700; }
+
+.section {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); margin-bottom: 14px; overflow: hidden;
+}
+.section-header {
+  display: flex; align-items: center; gap: 11px;
+  padding: 13px 16px; font-size: 16px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  position: sticky; top: 0; z-index: 5;
+}
+.section-header .sec-emoji { font-size: 20px; line-height: 1; }
+.section-header .sec-step {
+  width: 22px; height: 22px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.25); border-radius: 50%; font-size: 12px; font-weight: 700;
+}
+.section-header .sec-count {
+  margin-left: auto; min-width: 44px; text-align: center;
+  font-size: 13px; font-weight: 700; padding: 3px 11px;
+  background: rgba(255, 255, 255, 0.22); border-radius: 999px;
+}
+.section.done .section-header { background: linear-gradient(135deg, var(--green-1), var(--green-2)); }
+.section.done .section-header .sec-count { background: rgba(255, 255, 255, 0.28); }
+
+/* category (selection page) reuses the section frame */
+.category { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-bottom: 14px; padding: 4px 16px 6px; }
+.category > h3 {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 -16px 4px; padding: 14px 16px 12px;
+  color: var(--brand-ink); font-size: 16px; font-weight: 700;
+  border-bottom: 1px solid var(--line);
+}
+.permanent-section { background: #f0f3ff; border: 1.5px solid #c9d2ff; }
+.permanent-section > h3 { color: var(--brand-ink); border-bottom-color: #d8deff; }
+
+/* ---- List rows & items --------------------------------------- */
+.item {
+  display: flex; align-items: center; gap: 13px;
+  padding: 12px 6px; border-bottom: 1px solid var(--line-soft);
+}
+.item:last-child { border-bottom: none; }
+.item label { flex: 1; cursor: pointer; font-size: 16px; line-height: 1.35; color: var(--ink); }
+.item input[type="checkbox"] {
+  width: 24px; height: 24px; flex-shrink: 0; margin: 0; cursor: pointer;
+  accent-color: var(--green-1);
+}
+.item input[type="number"] {
+  width: 56px; padding: 8px 4px; text-align: center; font-size: 15px;
+  border: 1.5px solid var(--line); border-radius: 10px; color: var(--ink); background: #fff;
+}
+.item.selected { background: #effbf4; border-radius: 10px; }
+.item.checked { background: #effbf4; }
+.item.checked label { text-decoration: line-through; color: var(--muted); }
+.item.pending { background: var(--warn-bg); }
+
+/* ---- Quantity stepper (shop & select) ------------------------ */
+.qty-pill {
+  flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--brand-ink);
+  background: #eef1ff; border-radius: 999px; padding: 3px 10px; min-width: 30px; text-align: center;
+}
+
+/* ---- Counter / progress -------------------------------------- */
+.counter { text-align: center; font-size: 15px; font-weight: 600; color: var(--ink-soft); margin: 0 0 12px; }
+.counter b { color: var(--brand-ink); font-weight: 800; }
+.progress-wrap { height: 12px; background: #e6e9f3; border-radius: 999px; overflow: hidden; }
+.progress-bar {
+  height: 100%; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, #2bd07a, var(--green-1));
+  transition: width 0.35s ease;
+}
+
+/* ---- Segmented control (language) ---------------------------- */
+.seg {
+  display: flex; gap: 4px; padding: 4px; background: #e9ebf5;
+  border-radius: 999px; max-width: 320px; margin: 0 auto 6px;
+}
+.seg button {
+  flex: 1; padding: 9px 0; border: none; background: transparent; cursor: pointer;
+  font-size: 15px; font-weight: 600; color: var(--ink-soft); border-radius: 999px;
+  font-family: var(--font); transition: all 0.15s ease;
+}
+.seg button.active { background: #fff; color: var(--brand-ink); box-shadow: var(--shadow-sm); }
+
+/* ---- Buttons -------------------------------------------------- */
+button { font-family: var(--font); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 15px; border: none; border-radius: 14px;
+  font-size: 17px; font-weight: 700; cursor: pointer; color: #fff;
+}
+.btn:active { transform: scale(0.99); }
+.btn-primary { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); box-shadow: var(--shadow-brand); }
+.btn-green { background: linear-gradient(135deg, #1bc46f, var(--green-2)); box-shadow: var(--shadow-green); }
+.btn-ghost { background: #fff; color: var(--brand-ink); border: 1.5px solid #d4d9f5; box-shadow: var(--shadow-sm); }
+.btn-soft {
+  width: auto; padding: 9px 16px; font-size: 14px; border-radius: 999px;
+  background: #eef1ff; color: var(--brand-ink); font-weight: 600;
+}
+.btn-add {
+  flex-shrink: 0; padding: 0 18px; border: none; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); color: #fff; font-size: 16px; font-weight: 700;
+}
+
+/* tiny pin/unpin chips */
+.btn-pin, .btn-unpin {
+  margin-left: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600;
+  border-radius: 999px; cursor: pointer; vertical-align: middle;
+}
+.btn-pin { border: 1px solid #c6ccde; background: #fff; color: var(--ink-soft); }
+.btn-unpin { border: 1px solid #f0b4b4; background: #fdecec; color: #c0392b; }
+
+/* ---- Add-item card ------------------------------------------- */
+.add-card .row { display: flex; gap: 8px; }
+.field {
+  width: 100%; padding: 12px 14px; font-size: 16px; color: var(--ink);
+  border: 1.5px solid var(--line); border-radius: 12px; outline: none;
+  transition: border-color 0.15s ease; background: #fff;
+}
+.field:focus { border-color: var(--brand-1); }
+
+/* chips list for custom items being staged */
+.chip {
+  display: flex; align-items: center; gap: 8px; padding: 9px 12px; margin-bottom: 8px;
+  background: var(--warn-bg); border: 1px solid #f2dca8; border-radius: 12px;
+}
+.chip span { flex: 1; font-size: 15px; }
+.chip button {
+  border: none; background: #f3c2c2; color: #a32a2a; width: 26px; height: 26px;
+  border-radius: 50%; cursor: pointer; font-weight: 700; line-height: 1;
+}
+
+/* ---- Fixed bottom bar ---------------------------------------- */
+.bottom-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  max-width: 640px; margin: 0 auto;
+  padding: 14px calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -6px 22px rgba(20, 25, 50, 0.12);
+}
+.bottom-bar .btn + .btn { margin-top: 10px; }
+
+/* ---- Misc ---------------------------------------------------- */
+.center { text-align: center; }
+.back { text-align: center; margin: 20px 0 4px; }
+.back a { color: var(--brand-ink); text-decoration: none; font-size: 15px; font-weight: 600; }
+.empty { text-align: center; color: var(--muted); padding: 40px 16px; font-size: 16px; }
+.hide { display: none !important; }

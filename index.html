@@ -8,141 +8,27 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Costco List">
     <title>Costco List</title>
-    <style>
-        :root {
-            --brand: #667eea;
-            --brand-2: #764ba2;
-            --green: #25D366;
-            --ink: #2b2f38;
-            --muted: #7a8190;
-            --bg: #eef0f6;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html { -webkit-text-size-adjust: 100%; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            max-width: 600px; margin: 0 auto; color: var(--ink); background: var(--bg);
-            padding: 0 calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left));
-        }
-
-        /* App header */
-        .app-header {
-            margin: 0 calc(-14px - env(safe-area-inset-right)) 16px calc(-14px - env(safe-area-inset-left));
-            padding: calc(18px + env(safe-area-inset-top)) 16px 20px;
-            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
-            color: #fff; text-align: center;
-            border-radius: 0 0 22px 22px; box-shadow: 0 6px 18px rgba(102,126,234,0.35);
-        }
-        .app-header img {
-            width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.65); box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        }
-        h1 { font-size: 23px; margin: 10px 0 6px; color: #fff; letter-spacing: 0.3px; }
-        .app-header a { color: rgba(255,255,255,0.95); text-decoration: none; font-size: 14px; font-weight: 600; }
-
-        /* Language toggle */
-        .lang { text-align: center; margin: 18px 0; }
-        .lang button {
-            padding: 10px 22px; margin: 0 4px; font-size: 16px; cursor: pointer;
-            border: 2px solid var(--brand); background: #fff; color: var(--brand);
-            border-radius: 22px; font-weight: 600; transition: all 0.15s ease;
-        }
-        .lang button.active { background: var(--brand); color: #fff; }
-
-        .counter { text-align: center; font-size: 18px; font-weight: 700; margin: 12px 0; color: var(--ink); }
-
-        .manage-btn {
-            margin: 8px 0; padding: 10px 18px; background: var(--brand); color: #fff;
-            border: none; border-radius: 22px; font-size: 14px; font-weight: 600; cursor: pointer;
-        }
-
-        /* Category cards */
-        .category {
-            margin: 0 0 16px; background: #fff; border-radius: 16px; padding: 6px 16px 8px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-        }
-        .category h3 {
-            margin: 0 -16px 6px; padding: 14px 16px 12px; color: var(--brand);
-            font-size: 17px; border-bottom: 1px solid #eef0f4;
-        }
-        .item {
-            padding: 11px 4px; display: flex; align-items: center; gap: 12px;
-            border-bottom: 1px solid #f3f4f8;
-        }
-        .item:last-child { border-bottom: none; }
-        .item input[type="checkbox"] {
-            width: 24px; height: 24px; flex-shrink: 0; cursor: pointer;
-            accent-color: var(--green); margin: 0;
-        }
-        .item label { flex: 1; cursor: pointer; font-size: 16px; line-height: 1.35; }
-        .item input[type="number"] {
-            width: 54px; padding: 7px 4px; border: 2px solid #e2e5ee; border-radius: 8px;
-            text-align: center; font-size: 15px;
-        }
-        .item.selected { background: #effaf1; border-radius: 10px; }
-
-        /* Pre-selected (permanent) section */
-        .permanent-section { background: #eef4ff; border: 2px solid var(--brand); }
-        .permanent-section h3 { color: #2952cc; border-bottom-color: #d6e0ff; }
-
-        .btn-pin { padding: 3px 8px; margin-left: 5px; font-size: 11px; border: 1px solid #b9bfcc; background: #fff; border-radius: 6px; cursor: pointer; }
-        .btn-pin:hover { background: #f0f0f0; }
-        .btn-unpin { padding: 3px 8px; margin-left: 5px; font-size: 11px; border: 1px solid #cc0000; background: #ffe0e0; color: #cc0000; border-radius: 6px; cursor: pointer; }
-
-        /* Fixed action bar */
-        .actions {
-            position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto;
-            background: #fff; box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
-            padding: 14px calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
-            border-radius: 18px 18px 0 0;
-        }
-        .btn-generate {
-            width: 100%; padding: 15px; color: #fff; border: none; border-radius: 12px;
-            font-size: 18px; font-weight: 700; margin-bottom: 10px; cursor: pointer;
-            background: linear-gradient(135deg, #2bbf63, var(--green));
-            box-shadow: 0 4px 12px rgba(37,211,102,0.35);
-        }
-        .btn-clear {
-            width: 100%; padding: 12px; background: #fff; color: var(--brand);
-            border: 2px solid var(--brand); border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
-        }
-        .btn-generate:active, .btn-clear:active { transform: scale(0.99); }
-
-        .pt { display: none; }
-
-        /* Add-custom card */
-        .add-card { background: #fff; border-radius: 16px; padding: 16px; margin: 4px 0 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
-        .add-card h3 { margin: 0 0 12px; color: var(--brand); font-size: 16px; }
-        .add-card .row { display: flex; gap: 8px; }
-        .add-card input[type="text"] {
-            flex: 1; padding: 12px 14px; border: 2px solid #e2e5ee; border-radius: 10px;
-            font-size: 16px; outline: none; transition: border-color 0.15s ease;
-        }
-        .add-card input[type="text"]:focus { border-color: var(--brand); }
-        .add-card .btn-add {
-            padding: 0 18px; background: var(--brand); color: #fff; border: none;
-            border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
-<body>
+<body class="has-bottom-bar">
     <div class="app-header">
-        <img src="family-logo.png" alt="Family Logo">
+        <img class="logo" src="family-logo.png" alt="Family Logo">
         <h1>🛒 Costco Ancaster</h1>
-        <a href="history.html">📊 View History / Ver Histórico</a>
+        <p class="subtitle" id="subtitle">Pick items, then send the list</p>
+        <a class="header-link" href="history.html">📊 View History / Ver Histórico</a>
     </div>
 
-    <div class="lang">
+    <div class="seg">
         <button id="btn-en" class="active" onclick="showLang('en')">English</button>
         <button id="btn-pt" onclick="showLang('pt')">Português</button>
     </div>
-    
+
     <div class="counter" id="counter">Selected: 0 items</div>
-    
-    <div style="text-align: center; margin: 15px 0;">
-        <button class="manage-btn" onclick="toggleManageMode()">
+
+    <div class="center" style="margin: 6px 0 16px;">
+        <button class="btn-soft" onclick="toggleManageMode()">
             <span id="manage-btn-text-en">📌 Manage Pre-selected List</span>
-            <span id="manage-btn-text-pt" style="display: none;">📌 Gerenciar Lista Pré-selecionada</span>
+            <span id="manage-btn-text-pt" class="hide">📌 Gerenciar Lista Pré-selecionada</span>
         </button>
     </div>
     
@@ -198,143 +84,22 @@
         <div class="category"><h3>Doces</h3><div class="item"><input type="checkbox" id="pt-18-0"><label for="pt-18-0">Pão queijo</label></div><div class="item"><input type="checkbox" id="pt-18-1"><label for="pt-18-1">Sorvete</label></div><div class="item"><input type="checkbox" id="pt-18-2"><label for="pt-18-2">Geleia morango</label></div><div class="item"><input type="checkbox" id="pt-18-3"><label for="pt-18-3">Panqueca</label></div><div class="item"><input type="checkbox" id="pt-18-4"><label for="pt-18-4">Maple Syrup</label></div><div class="item"><input type="checkbox" id="pt-18-5"><label for="pt-18-5">Doce leite</label></div><div class="item"><input type="checkbox" id="pt-18-6"><label for="pt-18-6">Leite condensado</label></div><div class="item"><input type="checkbox" id="pt-18-7"><label for="pt-18-7">Mel</label></div><div class="item"><input type="checkbox" id="pt-18-8"><label for="pt-18-8">Granola</label></div><div class="item"><input type="checkbox" id="pt-18-9"><label for="pt-18-9">Açúcar demerara</label></div><div class="item"><input type="checkbox" id="pt-18-10"><label for="pt-18-10">Açúcar branco</label></div><div class="item"><input type="checkbox" id="pt-18-11"><label for="pt-18-11">Chocolate quente</label></div><div class="item"><input type="checkbox" id="pt-18-12"><label for="pt-18-12">Stevia</label></div></div>
     </div>
     
-    <div class="add-card">
+    <div class="card add-card">
         <h3>➕ Add Custom Items / Adicionar Itens</h3>
         <div id="custom-items-list"></div>
         <div class="row">
-            <input type="text" id="new-custom-item" placeholder="Enter item name / Nome do item">
+            <input type="text" class="field" id="new-custom-item" placeholder="Enter item name / Nome do item">
             <button class="btn-add" onclick="addCustomItemToList()">Add</button>
         </div>
     </div>
 
-    <div style="height: 150px;"></div>
-    
-    <div class="actions">
-        <button class="btn-generate" onclick="generateList()">📝 Generate Shopping List</button>
-        <button class="btn-clear" onclick="clearAll()">🗑️ Clear All</button>
+    <div class="bottom-bar">
+        <button class="btn btn-green" onclick="generateList()">📝 Generate Shopping List</button>
+        <button class="btn btn-ghost" onclick="clearAll()">🗑️ Clear All</button>
     </div>
 
+    <script src="data.js?v=2"></script>
     <script>
-var itemEmojis = {
-    'Work Bars': '🍫', 'Barrinhas Trabalho': '🍫',
-    'Fiber Bars (Chocolate)': '🍫', 'Barra cereal chocolate': '🍫',
-    'Rice Krispies Bars': '🍫', 'Barrinha Rice Krispies': '🍫',
-    'Pumpkin Seeds': '🌻', 'Sementes abóbora': '🌻',
-    'Cashews': '🥜', 'Castanhas': '🥜',
-    'Raisins': '�葡', 'Uvas passas': '🍇',
-    'Sesame Seeds': '🌰', 'Gergelim': '🌰',
-    'Cake': '🎂', 'Bolo': '🎂',
-    'Cookies': '🍪', 'Ginger Cookies': '🍪',
-    'Muffins': '🧁', 'Bolinho': '🧁',
-    'Bread': '🍞', 'Pão': '🍞',
-    'Hot Dog Buns': '🌭', 'Pão hot dog': '🌭',
-    'Tortillas': '🌮', 'Tortillas integral': '🌮',
-    'Croissants': '🥐', 'Croissant': '🥐',
-    'Turkey': '🦃', 'Peru': '🦃',
-    'Bacon': '🥓',
-    'Kirkland Protein Bar': '💪', 'Barra Proteína Kirkland': '💪',
-    'Chicken': '🍗', 'Frango': '🍗', 'Coxas': '🍗',
-    'Beef': '🥩', 'Carne': '🥩', 'Moída': '🥩',
-    'Tilapia': '🐟', 'Tilápia': '🐟',
-    'Lemon': '🍋', 'Limão': '🍋',
-    'Apples': '🍎', 'Maçã': '🍎',
-    'Bananas': '🍌', 'Banana': '🍌',
-    'Tangerines': '🍊', 'Tangerina': '🍊',
-    'Papaya': '🍈', 'Mamão': '🍈',
-    'Prunes': '🫐', 'Ameixas': '🫐',
-    'Potatoes': '🥔', 'Batata': '🥔',
-    'Carrots': '🥕', 'Cenoura': '🥕',
-    'Beets': '🫐', 'Beterraba': '🫐',
-    'Pumpkin': '🎃', 'Jerimum': '🎃',
-    'Cassava': '🥔', 'Macaxeira': '🥔',
-    'Onions': '🧅', 'Cebola': '🧅',
-    'Corn': '🌽', 'Milho': '🌽',
-    'Cheese': '🧀', 'Queijo': '🧀',
-    'Mushrooms': '🍄', 'Cogumelos': '🍄',
-    'Cucumber': '🥒', 'Pepino': '🥒',
-    'Tomatoes': '🍅', 'Tomates': '🍅',
-    'Peppers': '🫑', 'Pimentão': '🫑',
-    'Broccoli': '🥦', 'Brócolis': '🥦',
-    'Avocado': '🥑', 'Abacate': '🥑',
-    'Brussels Sprouts': '🥬', 'Couve Bruxelas': '🥬',
-    'Asparagus': '🌿', 'Aspargos': '🌿',
-    'Cabbage': '🥬', 'Couve': '🥬',
-    'Garlic': '🧄', 'Alho': '🧄',
-    'Spinach': '🥬', 'Espinafre': '🥬',
-    'Milk': '🥛', 'Leite': '🥛',
-    'Yogurt': '🥛', 'Iogurte': '🥛',
-    'Butter': '🧈', 'Manteiga': '🧈',
-    'Ghee': '🧈', 'Manteiga terra': '🧈',
-    'Coconut Oil': '🥥', 'Óleo coco': '🥥',
-    'Cream': '🥛', 'Creme': '🥛',
-    'Eggs': '🥚', 'Ovos': '🥚',
-    'Hummus': '🫘',
-    'Wipes': '🧻', 'Lenços': '🧻',
-    'Soap': '🧼', 'Sabonete': '🧼', 'Sabão': '🧼',
-    'Cleaner': '🧹', 'Limpador': '🧹',
-    'Spray': '💧',
-    'Gloves': '🧤', 'Luvas': '🧤',
-    'Sponges': '🧽', 'Esponjas': '🧽',
-    'Detergent': '🧴', 'Detergente': '🧴',
-    'Paper': '🧻', 'Papel': '🧻',
-    'Foil': '📋', 'Alumínio': '📋',
-    'Bags': '🛍️', 'Sacos': '🛍️',
-    'Chips': '🍿',
-    'Pringles': '🥔',
-    'Goldfish': '🐟',
-    'Oreos': '🍪', 'Oreo': '🍪',
-    'Pizza': '🍕',
-    'Strawberries': '🍓', 'Morangos': '🍓',
-    'Nuggets': '🍗',
-    'Fries': '🍟', 'Batata frita': '🍟',
-    'Olive Oil': '🫒', 'Azeite': '🫒',
-    'Vinegar': '🧪', 'Vinagre': '🧪',
-    'Mayonnaise': '🥫', 'Maionese': '🥫',
-    'Ketchup': '🍅',
-    'Mustard': '🌭', 'Mostarda': '🌭',
-    'Soy Sauce': '🥢', 'Shoyu': '🥢',
-    'Tuna': '🐟', 'Atum': '🐟',
-    'Salt': '🧂', 'Sal': '🧂',
-    'Pepper': '🌶️', 'Pimenta': '🌶️',
-    'Paprika': '🌶️', 'Páprica': '🌶️',
-    'Ginger': '🫚', 'Gengibre': '🫚',
-    'Cinnamon': '🥘', 'Canela': '🥘',
-    'Oregano': '🌿', 'Orégano': '🌿',
-    'Shampoo': '🧴',
-    'Conditioner': '🧴', 'Condicionador': '🧴',
-    'Lotion': '🧴', 'Hidratante': '🧴',
-    'Toothpaste': '🪥', 'Pasta': '🪥',
-    'Floss': '🦷', 'Fio dental': '🦷',
-    'Mouthwash': '🧪', 'Enxaguante': '🧪',
-    'Pads': '🩹', 'Absorvente': '🩹',
-    'Vitamin': '💊', 'Vitamina': '💊',
-    'Magnesium': '💊', 'Magnésio': '💊',
-    'Zinc': '💊', 'Zinco': '💊',
-    'Omega': '💊', 'Ômega': '💊',
-    'Juice': '🧃', 'Suco': '🧃',
-    'Cereal': '🥣',
-    'Pasta': '🍝', 'Macarrão': '🍝',
-    'Rice': '🍚', 'Arroz': '🍚',
-    'Quinoa': '🌾',
-    'Oats': '🌾', 'Aveia': '🌾',
-    'Flour': '🌾', 'Farinha': '🌾',
-    'Popcorn': '🍿', 'Pipoca': '🍿',
-    'Tapioca': '🥘',
-    'Coffee': '☕', 'Café': '☕',
-    'Tea': '🍵', 'Chá': '🍵',
-    'Water': '💧', 'Água': '💧',
-    'Soda': '🥤', 'Refrigerante': '🥤',
-    'Ice Cream': '🍨', 'Sorvete': '🍨',
-    'Jam': '🍓', 'Geleia': '🍓',
-    'Pancake': '🥞', 'Panqueca': '🥞',
-    'Syrup': '🍯', 'Maple Syrup': '🍯',
-    'Dulce de Leche': '🍯', 'Doce leite': '🍯',
-    'Honey': '🍯', 'Mel': '🍯',
-    'Granola': '🥣',
-    'Sugar': '🍬', 'Açúcar': '🍬',
-    'Chocolate': '🍫',
-    'Stevia': '🌿'
-};
 
 var customItemsForGeneration = [];
 
@@ -344,9 +109,9 @@ function addCustomItemToList() {
     if (!itemName) return;
     
     var itemDiv = document.createElement('div');
-    itemDiv.style.cssText = 'padding: 8px; margin: 5px 0; background: #fff9e6; border-radius: 5px; display: flex; align-items: center; gap: 8px;';
-    itemDiv.innerHTML = '<span style="flex: 1;">' + itemName + '</span><button onclick="removeCustomItem(this)" style="padding: 5px 10px; background: #c62828; color: white; border: none; border-radius: 3px; cursor: pointer;">✕</button>';
-    
+    itemDiv.className = 'chip';
+    itemDiv.innerHTML = '<span data-name="' + itemName.replace(/"/g, '&quot;') + '">' + getItemEmoji(itemName) + itemName + '</span><button onclick="removeCustomItem(this)">✕</button>';
+
     document.getElementById('custom-items-list').appendChild(itemDiv);
     customItemsForGeneration.push(itemName);
     input.value = '';
@@ -354,18 +119,14 @@ function addCustomItemToList() {
 
 function removeCustomItem(btn) {
     var itemDiv = btn.parentElement;
-    var itemName = itemDiv.querySelector('span').textContent;
+    var itemName = itemDiv.querySelector('span').getAttribute('data-name');
     customItemsForGeneration = customItemsForGeneration.filter(function(name) { return name !== itemName; });
     itemDiv.remove();
 }
 
+// Emoji lookup delegates to the shared data layer so both pages match
 function getItemEmoji(itemName) {
-    for (var key in itemEmojis) {
-        if (itemName.toLowerCase().includes(key.toLowerCase())) {
-            return itemEmojis[key] + ' ';
-        }
-    }
-    return '';
+    return COSTCO.itemEmoji(itemName) + ' ';
 }
 
 function showLang(lang) {
@@ -374,6 +135,9 @@ function showLang(lang) {
     document.getElementById('btn-pt').className = lang === 'pt' ? 'active' : '';
     document.getElementById('list-en').style.display = lang === 'en' ? 'block' : 'none';
     document.getElementById('list-pt').style.display = lang === 'pt' ? 'block' : 'none';
+    document.getElementById('subtitle').textContent = lang === 'en' ? 'Pick items, then send the list' : 'Escolha os itens e envie a lista';
+    document.getElementById('manage-btn-text-en').classList.toggle('hide', lang !== 'en');
+    document.getElementById('manage-btn-text-pt').classList.toggle('hide', lang !== 'pt');
     document.getElementById('counter').textContent = lang === 'en' ? 'Selected: 0 items' : 'Selecionados: 0 itens';
     updateCounter();
 }
@@ -458,11 +222,11 @@ function generateList() {
         return;
     }
     
-    var itemsParam = encodeURIComponent(selectedIds.join(','));
-    var qtysParam = encodeURIComponent(JSON.stringify(quantities));
-    var customParam = encodeURIComponent(JSON.stringify(customItemsForGeneration));
+    // Compact code keeps the shared link short (no backend needed)
+    var code = COSTCO.encode(selectedIds, quantities);
     var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
-    var shareUrl = baseUrl + 'list.html?items=' + itemsParam + '&qtys=' + qtysParam + '&custom=' + customParam + '&lang=' + lang;
+    var shareUrl = baseUrl + 'list.html?d=' + code + '&l=' + lang;
+    if (customItemsForGeneration.length) shareUrl += '&c=' + COSTCO.encodeCustom(customItemsForGeneration);
     
     var today = new Date();
     var day = String(today.getDate()).padStart(2, '0');
